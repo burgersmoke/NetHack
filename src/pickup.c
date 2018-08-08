@@ -205,7 +205,7 @@ int *menu_on_demand;
                     objs->ocontainer->cknown = 1;
                 goto ask_again;
             } else if (sym == 'i') {
-                (void) display_inventory((char *) 0, TRUE);
+                (void) display_inventory((char *) 0, TRUE, (char *) 0);
                 goto ask_again;
             } else if (sym == 'm') {
                 m_seen = TRUE;
@@ -778,6 +778,8 @@ menu_item **pick_list;            /* return list of items picked */
 int how;                          /* type of query */
 boolean FDECL((*allow), (OBJ_P)); /* allow function */
 {
+	//return 0;
+	
     int i, n, actualn;
     winid win;
     struct obj *curr, *last, fake_hero_object;
@@ -813,6 +815,9 @@ boolean FDECL((*allow), (OBJ_P)); /* allow function */
         (*pick_list)->count = last->quan;
         return 1;
     }
+
+	// more than one - skip it...
+	return 0;
 
     oarray = objarr_init(actualn);
     /* Add objects to the array */
@@ -1330,7 +1335,7 @@ boolean telekinesis;
                 (void) safe_qbuf(qbuf, qbuf, ".  Continue?", obj, doname,
                                  ansimpleoname, something);
                 obj->quan = savequan;
-                switch (ynq(qbuf)) {
+           /*     switch (ynq(qbuf)) {
                 case 'q':
                     result = -1;
                     break;
@@ -1338,8 +1343,8 @@ boolean telekinesis;
                     result = 0;
                     break;
                 default:
-                    break; /* 'y' => result == 1 */
-                }
+                    break; // 'y' => result == 1
+                }*/
                 clear_nhwindow(WIN_MESSAGE);
             }
         }

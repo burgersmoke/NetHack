@@ -1077,6 +1077,8 @@ xchar rtype, rlit;
         rtype = OROOM;
 
     if (rtype == VAULT) {
+		return FALSE;
+		
         vault = TRUE;
         xlim++;
         ylim++;
@@ -1086,8 +1088,9 @@ xchar rtype, rlit;
     /* some other rooms may require lighting */
 
     /* is light state random ? */
-    if (rlit == -1)
-        rlit = (rnd(1 + abs(depth(&u.uz))) < 11 && rn2(77)) ? TRUE : FALSE;
+    //if (rlit == -1)
+        //rlit = (rnd(1 + abs(depth(&u.uz))) < 11 && rn2(77)) ? TRUE : FALSE;
+	rlit = 1;
 
     /*
      * Here we will try to create a room. If some parameters are
@@ -1286,9 +1289,14 @@ struct mkroom *broom;
     int x = 0, y = 0;
     int trycnt = 0, wtry = 0;
 
-    if (dd->secret == -1)
-        dd->secret = rn2(2);
-
+	if (flags.secret_rooms)
+	{
+		if (dd->secret == -1)
+		    dd->secret = rn2(2);
+	}
+	else
+		dd->secret = 0;
+    
     if (dd->mask == -1) {
         /* is it a locked door, closed, or a doorway? */
         if (!dd->secret) {
@@ -1420,7 +1428,7 @@ xchar walls; /* any of W_NORTH | W_SOUTH | W_EAST | W_WEST (or W_ANY) */
         }
 
         if (okdoor(sx, sy)) {
-            levl[sx][sy].typ = SDOOR;
+            levl[sx][sy].typ = flags.secret_rooms ? SDOOR : DOOR;
             levl[sx][sy].doormask = D_CLOSED;
             return;
         }
@@ -1741,6 +1749,9 @@ create_object(o, croom)
 object *o;
 struct mkroom *croom;
 {
+	if (!flags.create_items)
+		return;
+	
     struct obj *otmp;
     schar x, y;
     char c;
@@ -2155,7 +2166,7 @@ schar ftyp, btyp;
                 if (nxcor && !rn2(50))
                     (void) mksobj_at(BOULDER, xx, yy, TRUE, FALSE);
             } else {
-                crm->typ = SCORR;
+                crm->typ = flags.secret_rooms ? SCORR : CORR;
             }
         } else if (crm->typ != ftyp && crm->typ != SCORR) {
             /* strange ... */
@@ -2522,8 +2533,9 @@ fill_empty_maze()
         mapfact = (int) ((mapcount * 100L) / mapcountmax);
         for (x = rnd((int) (20 * mapfact) / 100); x; x--) {
             maze1xy(&mm, DRY);
-            (void) mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y,
-                            TRUE);
+			if (flags.create_items)
+	            (void) mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y,
+	                            TRUE);
         }
         for (x = rnd((int) (12 * mapfact) / 100); x; x--) {
             maze1xy(&mm, DRY);
@@ -4157,7 +4169,7 @@ genericptr_t arg;
     xchar y = dy;
 
     if (!IS_DOOR(levl[x][y].typ) && levl[x][y].typ != SDOOR)
-        levl[x][y].typ = (typ & D_SECRET) ? SDOOR : DOOR;
+        levl[x][y].typ = (flags.secret_rooms && typ & D_SECRET) ? SDOOR : DOOR;
     if (typ & D_SECRET) {
         typ &= ~D_SECRET;
         if (typ < D_CLOSED)
@@ -4289,28 +4301,28 @@ struct opvar *ov;
             && IS_WALL(levl[x+1][y].typ)
             && isok(x+2, y) &&  selection_getpoint(x+2, y, ov)
             && ACCESSIBLE(levl[x+2][y].typ)) {
-            levl[x+1][y].typ = SDOOR;
+            levl[x+1][y].typ = flags.secret_rooms ? SDOOR : DOOR;
             goto gotitdone;
         }
         if (isok(x-1, y) && !selection_getpoint(x-1, y, ov)
             && IS_WALL(levl[x-1][y].typ)
             && isok(x-2, y) &&  selection_getpoint(x-2, y, ov)
             && ACCESSIBLE(levl[x-2][y].typ)) {
-            levl[x-1][y].typ = SDOOR;
+            levl[x-1][y].typ = flags.secret_rooms ? SDOOR : DOOR;
             goto gotitdone;
         }
         if (isok(x, y+1) && !selection_getpoint(x, y+1, ov)
             && IS_WALL(levl[x][y+1].typ)
             && isok(x, y+2) &&  selection_getpoint(x, y+2, ov)
             && ACCESSIBLE(levl[x][y+2].typ)) {
-            levl[x][y+1].typ = SDOOR;
+            levl[x][y+1].typ = flags.secret_rooms ? SDOOR : DOOR;
             goto gotitdone;
         }
         if (isok(x, y-1) && !selection_getpoint(x, y-1, ov)
             && IS_WALL(levl[x][y-1].typ)
             && isok(x, y-2) &&  selection_getpoint(x, y-2, ov)
             && ACCESSIBLE(levl[x][y-2].typ)) {
-            levl[x][y-1].typ = SDOOR;
+            levl[x][y-1].typ = flags.secret_rooms ? SDOOR : DOOR;
             goto gotitdone;
         }
     }

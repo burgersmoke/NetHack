@@ -1788,7 +1788,8 @@ struct obj *obj;
             } else if (uright) {
                 mask = LEFT_RING;
             } else {
-                do {
+				mask = LEFT_RING;
+                /*do {
                     Sprintf(qbuf, "Which %s%s, Right or Left?",
                             humanoid(youmonst.data) ? "ring-" : "",
                             body_part(FINGER));
@@ -1805,7 +1806,7 @@ struct obj *obj;
                         mask = RIGHT_RING;
                         break;
                     }
-                } while (!mask);
+                } while (!mask);*/
             }
             if (uarmg && uarmg->cursed) {
                 res = !uarmg->bknown;
@@ -1958,11 +1959,24 @@ doputon()
     return otmp ? accessory_or_armor_on(otmp) : 0;
 }
 
+void wear_obj(otmp)
+register struct obj *otmp;
+{
+	accessory_or_armor_on(otmp);
+}
+
 /* calculate current armor class */
 void
 find_ac()
 {
-    int uac = mons[u.umonnum].ac; /* base armor class for current form */
+	if (reqac < 999 && reqac != u.uac)
+	{
+	     u.uac = reqac;
+	     context.botl = 1;
+		return;
+	}
+    
+	int uac = mons[u.umonnum].ac; /* base armor class for current form */
 
     /* armor class from worn gear */
     if (uarm)

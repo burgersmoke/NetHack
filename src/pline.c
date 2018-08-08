@@ -98,7 +98,7 @@ VA_DECL(const char *, line)
     /* this gets cleared after every pline message */
     iflags.last_msg = PLNMSG_UNKNOWN;
     strncpy(prevmsg, line, BUFSZ);
-    if (msgtyp == MSGTYP_STOP) display_nhwindow(WIN_MESSAGE, TRUE); /* --more-- */
+    //if (msgtyp == MSGTYP_STOP) display_nhwindow(WIN_MESSAGE, TRUE); /* --more-- */
 
 #if !(defined(USE_STDARG) || defined(USE_VARARGS))
     /* provide closing brace for the nested block

@@ -374,7 +374,8 @@ invault()
         }
         trycount = 5;
         do {
-            getlin("\"Hello stranger, who are you?\" -", buf);
+            //getlin("\"Hello stranger, who are you?\" -", buf);
+			buf[0] = "C";
             (void) mungspaces(buf);
         } while (!letter(buf[0]) && --trycount > 0);
 

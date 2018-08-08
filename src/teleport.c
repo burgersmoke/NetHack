@@ -301,7 +301,7 @@ boolean allow_drag;
             ball_active = TRUE;
             allow_drag = FALSE;
         }
-        docrt();
+        //docrt();
     }
     if (ball_active) {
         if (ball_still_in_range || allow_drag) {
@@ -435,46 +435,48 @@ struct obj *scroll;
     }
 
     /* don't show trap if "Sorry..." */
-    if (!Blinded)
-        make_blinded(0L, FALSE);
+    //if (!Blinded)
+    //    make_blinded(0L, FALSE);
 
     if ((u.uhave.amulet || On_W_tower_level(&u.uz)) && !rn2(3)) {
         You_feel("disoriented for a moment.");
         if (!wizard || yn("Override?") != 'y')
             return FALSE;
     }
-    if ((Teleport_control && !Stunned) || wizard) {
-        if (unconscious()) {
-            pline("Being unconscious, you cannot control your teleport.");
-        } else {
-            char whobuf[BUFSZ];
+    //if ((Teleport_control && !Stunned) || wizard) {
+        //if (unconscious()) {
+        //    pline("Being unconscious, you cannot control your teleport.");
+        //} else {
+            //char whobuf[BUFSZ];
 
-            Strcpy(whobuf, "you");
-            if (u.usteed)
-                Sprintf(eos(whobuf), " and %s", mon_nam(u.usteed));
-            pline("To what position do %s want to be teleported?", whobuf);
-            cc.x = u.ux;
-            cc.y = u.uy;
-            if (getpos(&cc, TRUE, "the desired position") < 0)
-                return TRUE; /* abort */
+            //Strcpy(whobuf, "you");
+            //if (u.usteed)
+            //    Sprintf(eos(whobuf), " and %s", mon_nam(u.usteed));
+            //pline("To what position do %s want to be teleported?", whobuf);
+            //cc.x = u.ux;
+            //cc.y = u.uy;
+			cc.x = xupstair;
+			cc.y = yupstair;
+            //if (getpos(&cc, TRUE, "the desired position") < 0)
+            //    return TRUE; /* abort */
             /* possible extensions: introduce a small error if
                magic power is low; allow transfer to solid rock */
             if (teleok(cc.x, cc.y, FALSE)) {
                 /* for scroll, discover it regardless of destination */
-                if (scroll)
-                    learnscroll(scroll);
+                //if (scroll)
+                //    learnscroll(scroll);
                 teleds(cc.x, cc.y, FALSE);
                 return TRUE;
             }
-            pline("Sorry...");
-            result = TRUE;
-        }
-    } else if (scroll && scroll->blessed) {
+            //pline("Sorry...");
+            //result = TRUE;
+		//}
+		//} else if (scroll && scroll->blessed) {
         /* (this used to be handled in seffects()) */
-        if (yn("Do you wish to teleport?") == 'n')
+        /*if (yn("Do you wish to teleport?") == 'n')
             return TRUE;
-        result = TRUE;
-    }
+        result = TRUE;*/
+	//}
 
     telescroll = scroll;
     (void) safe_teleds(FALSE);

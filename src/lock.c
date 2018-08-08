@@ -564,10 +564,10 @@ int x, y;
     boolean portcullis;
     int res = 0;
 
-    if (nohands(youmonst.data)) {
-        You_cant("open anything -- you have no hands!");
-        return 0;
-    }
+    //if (nohands(youmonst.data)) {
+    //    You_cant("open anything -- you have no hands!");
+    //    return 0;
+    //}
 
     if (u.utrap && u.utraptype == TT_PIT) {
         You_cant("reach over the edge of the pit.");
@@ -613,8 +613,11 @@ int x, y;
             You("%s no door there.", Blind ? "feel" : "see");
         return res;
     }
-
-    if (!(door->doormask & D_CLOSED)) {
+	
+    if ((door->doormask & D_LOCKED))
+		door->doormask |= D_LOCKED;
+	
+    /*if (!(door->doormask & D_CLOSED)) {
         const char *mesg;
 
         switch (door->doormask) {
@@ -632,13 +635,13 @@ int x, y;
             break;
         }
         pline("This door%s.", mesg);
-        return res;
-    }
+        return 1;
+    }*/
 
-    if (verysmall(youmonst.data)) {
-        pline("You're too small to pull the door open.");
-        return res;
-    }
+    //if (verysmall(youmonst.data)) {
+    //    pline("You're too small to pull the door open.");
+    //    return res;
+    //}
 
     /* door is known to be CLOSED */
     if (rnl(20) < (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3) {

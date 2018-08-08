@@ -22,8 +22,12 @@ NEARDATA int bases[MAXOCLASSES] = DUMMY;
 NEARDATA int multi = 0;
 const char *multi_reason = NULL;
 NEARDATA int nroom = 0;
+NEARDATA int nsdoor = 0;
 NEARDATA int nsubroom = 0;
 NEARDATA int occtime = 0;
+NEARDATA int num_expl = 0;
+
+NEARDATA int portnum = -1;
 
 /* maze limits must be even; masking off lowest bit guarantees that */
 int x_maze_max = (COLNO - 1) & ~1, y_maze_max = (ROWNO - 1) & ~1;
@@ -203,6 +207,14 @@ NEARDATA anything zeroany;
 NEARDATA char dogname[PL_PSIZ] = DUMMY;
 NEARDATA char catname[PL_PSIZ] = DUMMY;
 NEARDATA char horsename[PL_PSIZ] = DUMMY;
+NEARDATA int mtypeid = 0;
+NEARDATA int reqlevel = 1;
+NEARDATA int reqac = 999;
+NEARDATA int reqdlvl = 999;
+NEARDATA int reqstr = 0;
+NEARDATA int reqdex = 0;
+NEARDATA int reqlyc = -1;
+NEARDATA int reqstateffs = 1;
 char preferred_pet; /* '\0', 'c', 'd', 'n' (none) */
 /* monsters that went down/up together with @ */
 NEARDATA struct monst *mydogs = (struct monst *) 0;

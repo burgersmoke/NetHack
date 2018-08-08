@@ -611,6 +611,7 @@ bad_rock(mdat, x, y)
 struct permonst *mdat;
 register xchar x, y;
 {
+	return FALSE;
     return (boolean) ((Sokoban && sobj_at(BOULDER, x, y))
                       || (IS_ROCK(levl[x][y].typ)
                           && (!tunnels(mdat) || needspick(mdat)
@@ -625,6 +626,8 @@ int /* returns 0 if we can squeeze through */
     cant_squeeze_thru(mon)
 struct monst *mon;
 {
+	return 0;
+	
     int amt;
     struct permonst *ptr = mon->data;
 
@@ -731,12 +734,12 @@ int mode;
                         You(
    "try to ooze under the door, but can't squeeze your possessions through.");
                     if (flags.autoopen && !context.run && !Confusion
-                        && !Stunned && !Fumbling) {
+                        && !Stunned) { // && !Fumbling) {
                         context.door_opened = context.move =
                             doopen_indir(x, y);
                     } else if (x == ux || y == uy) {
-                        if (Blind || Stunned || ACURR(A_DEX) < 10
-                            || Fumbling) {
+                        if (Blind || Stunned || ACURR(A_DEX) < 10) {
+                            //|| Fumbling) {
                             if (u.usteed) {
                                 You_cant("lead %s through that closed door.",
                                          y_monnam(u.usteed));
@@ -766,7 +769,7 @@ int mode;
         && bad_rock(youmonst.data, x, uy)) {
         /* Move at a diagonal. */
         switch (cant_squeeze_thru(&youmonst)) {
-        case 3:
+        /*case 3:
             if (mode == DO_MOVE)
                 You("cannot pass that way.");
             return FALSE;
@@ -777,7 +780,7 @@ int mode;
         case 1:
             if (mode == DO_MOVE)
                 Your("body is too large to fit through.");
-            return FALSE;
+            return FALSE;*/
         default:
             break; /* can squeeze through */
         }
@@ -802,11 +805,11 @@ int mode;
     ust = &levl[ux][uy];
 
     /* Now see if other things block our way . . */
-    if (dx && dy && !Passes_walls && IS_DOOR(ust->typ)
+    /*if (dx && dy && !Passes_walls && IS_DOOR(ust->typ)
         && (!doorless_door(ux, uy) || block_entry(x, y))) {
-        /* Can't move at a diagonal out of a doorway with door. */
+        // Can't move at a diagonal out of a doorway with door.
         return FALSE;
-    }
+    }*/
 
     if (sobj_at(BOULDER, x, y) && (Sokoban || !Passes_walls)) {
         if (!(Blind || Hallucination) && (context.run >= 2)
@@ -1700,13 +1703,13 @@ domove()
             if (flags.time)
                 context.botl = 1;
             curs_on_u();
-            delay_output();
+            /*delay_output();
             if (flags.runmode == RUN_CRAWL) {
                 delay_output();
                 delay_output();
                 delay_output();
                 delay_output();
-            }
+            }*/
         }
     }
 }
@@ -2516,6 +2519,8 @@ STATIC_OVL boolean
 doorless_door(x, y)
 int x, y;
 {
+	return TRUE;
+	
     struct rm *lev_p = &levl[x][y];
 
     if (!IS_DOOR(lev_p->typ))
@@ -2746,6 +2751,8 @@ int
 calc_capacity(xtra_wt)
 int xtra_wt;
 {
+	return UNENCUMBERED;
+	
     int cap, wt = inv_weight() + xtra_wt;
 
     if (wt <= 0)

@@ -729,20 +729,19 @@ STATIC_DCL struct tm *NDECL(getlt);
 void
 setrandom()
 {
-    unsigned long seed = (unsigned long) getnow(); /* time((TIME_type) 0) */
-
-#if defined(UNIX) || defined(VMS)
+    unsigned long seed = (flags.seed > -1) ? (unsigned long) flags.seed : (unsigned long) getnow(); /* time((TIME_type) 0) */
+/*#if defined(UNIX) || defined(VMS)
     {
         unsigned long pid = (unsigned long) getpid();
 
-        /* Quick dirty band-aid to prevent PRNG prediction */
+        // Quick dirty band-aid to prevent PRNG prediction
         if (pid) {
             if (!(pid & 3L))
                 pid -= 1L;
             seed *= pid;
         }
     }
-#endif
+#endif*/
 
     /* the types are different enough here that sweeping the different
      * routine names into one via #defines is even more confusing
@@ -750,19 +749,18 @@ setrandom()
 #ifdef RANDOM /* srandom() from sys/share/random.c */
     srandom((unsigned int) seed);
 #else
-#if defined(__APPLE__) || defined(BSD) || defined(LINUX) || defined(ULTRIX) \
-    || defined(CYGWIN32) /* system srandom() */
-#if defined(BSD) && !defined(POSIX_TYPES) && defined(SUNOS4)
-    (void)
-#endif
-        srandom((int) seed);
-#else
-#ifdef UNIX /* system srand48() */
-    srand48((long) seed);
-#else       /* poor quality system routine */
-    srand((int) seed);
-#endif
-#endif
+	#if defined(__APPLE__) || defined(BSD) || defined(LINUX) || defined(ULTRIX) || defined(CYGWIN32) /* system srandom() */
+		#if defined(BSD) && !defined(POSIX_TYPES) && defined(SUNOS4)
+		    (void)
+		#endif
+	    srandom((int) seed);
+	#else
+		#ifdef UNIX /* system srand48() */
+		    srand48((long) seed);
+		#else       /* poor quality system routine */
+		    srand((int) seed);
+		#endif
+	#endif
 #endif
 }
 

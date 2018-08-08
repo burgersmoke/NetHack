@@ -74,7 +74,7 @@ static struct trobj Knight[] = {
     { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { RING_MAIL, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    //{ SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { LEATHER_GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { APPLE, 0, FOOD_CLASS, 10, 0 },
     { CARROT, 0, FOOD_CLASS, 10, 0 },
@@ -99,7 +99,7 @@ static struct trobj Monk[] = {
 static struct trobj Priest[] = {
     { MACE, 1, WEAPON_CLASS, 1, 1 },
     { ROBE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    //{ SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { POT_WATER, 0, POTION_CLASS, 4, 1 }, /* holy water */
     { CLOVE_OF_GARLIC, 0, FOOD_CLASS, 1, 0 },
     { SPRIG_OF_WOLFSBANE, 0, FOOD_CLASS, 1, 0 },
@@ -151,7 +151,7 @@ static struct trobj Tourist[] = {
 static struct trobj Valkyrie[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { DAGGER, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
-    { SMALL_SHIELD, 3, ARMOR_CLASS, 1, UNDEF_BLESS },
+    //{ SMALL_SHIELD, 3, ARMOR_CLASS, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
@@ -215,7 +215,7 @@ static struct inv_sub {
     { PM_ORC, BOW, ORCISH_BOW },
     { PM_ORC, ARROW, ORCISH_ARROW },
     { PM_ORC, HELMET, ORCISH_HELM },
-    { PM_ORC, SMALL_SHIELD, ORCISH_SHIELD },
+    //{ PM_ORC, SMALL_SHIELD, ORCISH_SHIELD },
     { PM_ORC, RING_MAIL, ORCISH_RING_MAIL },
     { PM_ORC, CHAIN_MAIL, ORCISH_CHAIN_MAIL },
     { PM_DWARF, SPEAR, DWARVISH_SPEAR },
@@ -871,8 +871,8 @@ u_init()
     if (discover)
         ini_inv(Wishing);
 
-    if (wizard)
-        read_wizkit();
+    //if (wizard)
+    read_wizkit();
 
     if (u.umoney0)
         ini_inv(Money);
@@ -971,6 +971,9 @@ STATIC_OVL void
 ini_inv(trop)
 register struct trobj *trop;
 {
+	if (flags.combat_setup)
+		return;
+	
     struct obj *obj;
     int otyp, i;
 

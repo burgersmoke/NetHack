@@ -93,7 +93,7 @@ CONTAINER:('(',"chest"),$place[6] {
 }
 OBJECT:('[',"water walking boots"),$place[7]
 OBJECT:('[',"crystal plate mail"),$place[8]
-OBJECT:('+',"invisibility"),$place[9]
+OBJECT:('&',"invisibility"),$place[9]
 # Walls in the tower are non diggable
 NON_DIGGABLE:(00,00,14,10)
 

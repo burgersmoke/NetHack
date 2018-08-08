@@ -860,11 +860,11 @@ xchar x, y;
         return;
     if (cansee(x, y)) { /* Don't see anything if can't see the location */
         for (i = 0; i < SHIELD_COUNT; i++) {
-            show_glyph(x, y, cmap_to_glyph(shield_static[i]));
-            flush_screen(1); /* make sure the glyph shows up */
-            delay_output();
+            //show_glyph(x, y, cmap_to_glyph(shield_static[i]));
+            //flush_screen(1); /* make sure the glyph shows up */
+            //delay_output();
         }
-        newsym(x, y); /* restore the old information */
+        //newsym(x, y); /* restore the old information */
     }
 }
 
@@ -1256,6 +1256,44 @@ doredraw()
     return 0;
 }
 
+
+typedef struct {
+    xchar new; /* perhaps move this bit into the rm structure. */
+    int glyph;
+} gbuf_entry;
+
+static gbuf_entry gbuf[ROWNO][COLNO];
+static char gbuf_start[ROWNO];
+static char gbuf_stop[ROWNO];
+
+char* savemaptofile()
+{
+	char* mapstr = malloc(sizeof(char)*(ROWNO*COLNO));
+	//FILE *f = fopen("map.txt", "w");
+	//if (f==NULL) printf("Error opening file");
+	int x, y, i;
+	i = 0;
+	//fprintf(f, "Starting to print to file");
+    for (x = 0; x < ROWNO; x++)
+	{
+	    for (y = 0; y < COLNO; y++)
+		{
+			int ochar;
+			unsigned ospecial;
+			int ocolor;
+			mapglyph(gbuf[x][y].glyph, &ochar, &ocolor, &ospecial, x, y);
+			//fprintf(f, "%c", ochar);
+			mapstr[i] = (char)ochar;
+			i++;
+		}
+		//fprintf(f, "\n");
+	}
+//	fprintf(f, "\n%s", mapstr);
+//	fprintf(f, "\n**end**\n");
+	//fclose(f);
+	return mapstr;
+}
+
 void
 docrt()
 {
@@ -1310,14 +1348,6 @@ docrt()
 /* Glyph Buffering (3rd screen) ============================================
  */
 
-typedef struct {
-    xchar new; /* perhaps move this bit into the rm structure. */
-    int glyph;
-} gbuf_entry;
-
-static gbuf_entry gbuf[ROWNO][COLNO];
-static char gbuf_start[ROWNO];
-static char gbuf_stop[ROWNO];
 
 /*
  * Store the glyph in the 3rd screen for later flushing.

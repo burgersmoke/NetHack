@@ -964,14 +964,14 @@ struct obj *obj;
     if (bhitpos.x != u.ux || bhitpos.y != u.uy) {
         int x = bhitpos.x - u.dx, y = bhitpos.y - u.dy;
 
-        tmp_at(DISP_FLASH, obj_to_glyph(obj));
+        //tmp_at(DISP_FLASH, obj_to_glyph(obj));
         while (x != u.ux || y != u.uy) {
-            tmp_at(x, y);
-            delay_output();
+            //tmp_at(x, y);
+            //delay_output();
             x -= u.dx;
             y -= u.dy;
         }
-        tmp_at(DISP_END, 0);
+        //tmp_at(DISP_END, 0);
     }
 }
 
@@ -1209,10 +1209,10 @@ boolean
         }
 
         if (!IS_SOFT(levl[bhitpos.x][bhitpos.y].typ) && breaktest(obj)) {
-            tmp_at(DISP_FLASH, obj_to_glyph(obj));
-            tmp_at(bhitpos.x, bhitpos.y);
-            delay_output();
-            tmp_at(DISP_END, 0);
+            //tmp_at(DISP_FLASH, obj_to_glyph(obj));
+            //tmp_at(bhitpos.x, bhitpos.y);
+            //delay_output();
+            //tmp_at(DISP_END, 0);
             breakmsg(obj, cansee(bhitpos.x, bhitpos.y));
             breakobj(obj, bhitpos.x, bhitpos.y, TRUE, TRUE);
             thrownobj = (struct obj *) 0;

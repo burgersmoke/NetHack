@@ -22,6 +22,8 @@ E char *FDECL(fmt_ptr, (const genericptr));
 
 E void FDECL(moveloop, (BOOLEAN_P));
 E void NDECL(stop_occupation);
+E void NDECL(sendDieMsg);
+E char NDECL(rcvDir);
 E void NDECL(display_gamewindows);
 E void NDECL(newgame);
 E void FDECL(welcome, (BOOLEAN_P));
@@ -150,6 +152,9 @@ E long NDECL(botl_score);
 E int FDECL(describe_level, (char *));
 E const char *FDECL(rank_of, (int, SHORT_P, BOOLEAN_P));
 E void NDECL(bot);
+E char* NDECL(getAttrs);
+E char* NDECL(getStats);
+E void NDECL(set_botl_buffz);
 #ifdef STATUS_VIA_WINDOWPORT
 E void FDECL(status_initialize, (BOOLEAN_P));
 E void NDECL(status_finish);
@@ -161,6 +166,11 @@ E char *FDECL(get_status_hilites, (char *, int));
 E boolean NDECL(status_hilite_menu);
 #endif
 #endif
+
+E char* NDECL(get_topl);
+E void NDECL(clear_topl);
+E int NDECL(hasMore);
+E void NDECL(resetMore);
 
 /* ### cmd.c ### */
 
@@ -321,6 +331,7 @@ E void NDECL(see_traps);
 E void NDECL(curs_on_u);
 E int NDECL(doredraw);
 E void NDECL(docrt);
+E char* NDECL(savemaptofile);
 E void FDECL(show_glyph, (int, int, int));
 E void NDECL(clear_glyph_buffer);
 E void FDECL(row_refresh, (int, int, int));
@@ -449,6 +460,7 @@ E int FDECL(destroy_arm, (struct obj *));
 E void FDECL(adj_abon, (struct obj *, SCHAR_P));
 E boolean
 FDECL(inaccessible_equipment, (struct obj *, const char *, BOOLEAN_P));
+E void FDECL(wear_obj, (struct obj *));
 
 /* ### dog.c ### */
 
@@ -883,6 +895,8 @@ E int NDECL(midnight);
 
 /* ### invent.c ### */
 
+E char* NDECL(getInvenBuf);
+
 E struct obj **FDECL(objarr_init, (int));
 E void FDECL(objarr_set, (struct obj *, int, struct obj **, BOOLEAN_P));
 E void FDECL(assigninvlet, (struct obj *));
@@ -926,7 +940,7 @@ E void FDECL(prinv, (const char *, struct obj *, long));
 E char *FDECL(xprname,
               (struct obj *, const char *, CHAR_P, BOOLEAN_P, long, long));
 E int NDECL(ddoinv);
-E char FDECL(display_inventory, (const char *, BOOLEAN_P));
+E char FDECL(display_inventory, (const char *, BOOLEAN_P, char *));
 E int FDECL(display_binventory, (int, int, BOOLEAN_P));
 E struct obj *FDECL(display_cinventory, (struct obj *));
 E struct obj *FDECL(display_minventory, (struct monst *, int, char *));
@@ -956,6 +970,7 @@ E long FDECL(count_contents, (struct obj *, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P));
 E void FDECL(carry_obj_effects, (struct obj *));
 E const char *FDECL(currency, (long));
 E void FDECL(silly_thing, (const char *, struct obj *));
+E int NDECL(get_num_inv);
 
 /* ### ioctl.c ### */
 
@@ -1670,6 +1685,7 @@ E int NDECL(dohistory);
 E int FDECL(do_screen_description,
             (coord, BOOLEAN_P, int, char *, const char **));
 E int FDECL(do_look, (int, coord *));
+E void NDECL(look_all_n);
 
 /* ### pcmain.c ### */
 

@@ -15,6 +15,8 @@
  * The distinctions here are not BSD - rest but rather USG - rest, as
  * BSD still has the old sgttyb structure, but SYSV has termio. Thus:
  */
+#define OSPEED(x) (speednum(cfgetospeed(&x)))
+
 #if (defined(BSD) || defined(ULTRIX)) && !defined(POSIX_TYPES)
 #define V7
 #else

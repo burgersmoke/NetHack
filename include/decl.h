@@ -29,8 +29,12 @@ E NEARDATA int bases[MAXOCLASSES];
 E NEARDATA int multi;
 E const char *multi_reason;
 E NEARDATA int nroom;
+E NEARDATA int nsdoor;
 E NEARDATA int nsubroom;
 E NEARDATA int occtime;
+E NEARDATA int num_expl;
+
+E NEARDATA int portnum;
 
 #define WARNCOUNT 6 /* number of different warning levels */
 E nhsym warnsyms[WARNCOUNT];
@@ -191,6 +195,14 @@ E NEARDATA char plname[PL_NSIZ];
 E NEARDATA char dogname[];
 E NEARDATA char catname[];
 E NEARDATA char horsename[];
+E NEARDATA int mtypeid;
+E NEARDATA int reqlevel;
+E NEARDATA int reqac;
+E NEARDATA int reqdlvl;
+E NEARDATA int reqstr;
+E NEARDATA int reqdex;
+E NEARDATA int reqlyc;
+E NEARDATA int reqstateffs;
 E char preferred_pet;
 E const char *occtxt; /* defined when occupation != NULL */
 E const char *nomovemsg;

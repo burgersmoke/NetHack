@@ -103,9 +103,9 @@ getlock()
      * also incidentally prevents development of any hack-o-matic programs
      */
     /* added check for window-system type -dlc */
-    if (!strcmp(windowprocs.name, "tty"))
-        if (!isatty(0))
-            error("You must play from a terminal.");
+    //if (!strcmp(windowprocs.name, "tty"))
+    //    if (!isatty(0))
+    //        error("You must play from a terminal.");
 #endif
 
     /* we ignore QUIT and INT at this point */
@@ -124,8 +124,8 @@ getlock()
     set_levelfile_name(lock, 0);
 
     if (locknum) {
-        if (locknum > 25)
-            locknum = 25;
+        //if (locknum > 25)
+        locknum = 25;
 
         do {
             lock[0] = 'a' + i++;
@@ -162,10 +162,11 @@ getlock()
         (void) close(fd);
 
         if (iflags.window_inited) {
-            c = yn("There is already a game in progress under your name.  "
-                   "Destroy old game?");
+            //c = yn("There is already a game in progress under your name.  "
+            //       "Destroy old game?");
+			c = 'y';
         } else {
-            (void) printf(
+            /*(void) printf(
                 "\nThere is already a game in progress under your name.");
             (void) printf("  Destroy old game? [yn] ");
             (void) fflush(stdout);
@@ -175,8 +176,9 @@ getlock()
                 (void) putchar(c);
                 (void) fflush(stdout);
                 while ((tmp = getchar()) != '\n' && tmp != EOF)
-                    ; /* eat rest of line and newline */
-            }
+                    ; // eat rest of line and newline
+            }*/
+			c = 'y';
         }
         if (c == 'y' || c == 'Y') {
             if (eraseoldlocks())

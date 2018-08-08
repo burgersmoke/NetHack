@@ -18,7 +18,7 @@ NEARDATA struct instance_flags iflags; /* provide linkage */
 #include <ctype.h>
 #endif
 
-#define BACKWARD_COMPAT
+//#define BACKWARD_COMPAT
 #define WINTYPELEN 16
 
 #ifdef DEFAULT_WC_TILED_MAP
@@ -50,6 +50,11 @@ static struct Bool_Opt {
     boolean *addr, initvalue;
     int optflags;
 } boolopt[] = {
+	{ "secret_rooms", &flags.secret_rooms, FALSE, SET_IN_GAME },
+	{ "adjust_mlvl", &flags.adjust_mlvl, TRUE, SET_IN_GAME },
+	{ "combat_setup", &flags.combat_setup, TRUE, SET_IN_GAME },
+	{ "create_mons", &flags.create_mons, TRUE, SET_IN_GAME },
+	{ "create_items", &flags.create_items, TRUE, SET_IN_GAME },
     { "acoustics", &flags.acoustics, TRUE, SET_IN_GAME },
 #if defined(SYSFLAGS) && defined(AMIGA)
     /* Amiga altmeta causes Alt+key to be converted into Meta+key by
@@ -209,7 +214,7 @@ static struct Bool_Opt {
 #else
     { "timed_delay", (boolean *) 0, FALSE, SET_IN_GAME },
 #endif
-    { "tombstone", &flags.tombstone, TRUE, SET_IN_GAME },
+    { "tombstone", &flags.tombstone, FALSE, SET_IN_GAME },
     { "toptenwin", &iflags.toptenwin, FALSE, SET_IN_GAME },
     { "travel", &flags.travelcmd, TRUE, SET_IN_GAME },
     { "use_darkgray", &iflags.wc2_darkgray, TRUE, SET_IN_FILE },
@@ -284,6 +289,14 @@ static struct Comp_Opt {
     { "gender", "your starting gender (male or female)", 8, DISP_IN_GAME },
     { "horsename", "the name of your (first) horse (e.g., horsename:Silver)",
       PL_PSIZ, DISP_IN_GAME },
+	{ "mtypeid", "monster type", 40, DISP_IN_GAME },
+	{ "reqlevel", "requested player level", 40, SET_IN_FILE },
+	{ "reqac", "requested armor class", 40, SET_IN_FILE },
+	{ "reqdlvl", "requested dungeon level", 40, SET_IN_FILE },
+	{ "reqstr", "requested player str", 40, SET_IN_FILE },
+	{ "reqdex", "requested player dex", 40, SET_IN_FILE },
+	{ "reqlyc", "requested lycanthropic type", 40, SET_IN_FILE },
+	{ "reqstateffs", "requested status effects", 40, SET_IN_FILE },
     { "map_mode", "map display mode under Windows", 20, DISP_IN_GAME }, /*WC*/
     { "menustyle", "user interface for object selection", MENUTYPELEN,
       SET_IN_GAME },
@@ -336,6 +349,7 @@ static struct Comp_Opt {
       SET_IN_GAME },
     { "pickup_types", "types of objects to pick up automatically",
       MAXOCLASSES, SET_IN_GAME },
+	{ "seed", "seed", -1, SET_IN_GAME },
     { "pile_limit", "threshold for \"there are many objects here\"", 24,
       SET_IN_GAME },
     { "playmode", "normal play, non-scoring explore mode, or debug mode", 8,
@@ -605,9 +619,21 @@ initoptions()
 /* someday there may be other SYSCF alternatives besides text file */
 #ifdef SYSCF_FILE
     /* If SYSCF_FILE is specified, it _must_ exist... */
+	
     assure_syscf_file();
     /* ... and _must_ parse correctly. */
-    if (!read_config_file(SYSCF_FILE, SET_IN_SYS)) {
+	char* intstr = malloc(16);
+	int procnum = portnum-5555;
+	snprintf(intstr, 16, "%d", procnum);
+	char* finalstr = (char *) malloc(1 + strlen(SYSCF_FILE)+ strlen(intstr) );
+    strcpy(finalstr, SYSCF_FILE);
+    strcat(finalstr, intstr);
+	
+  	FILE* f = fopen("log.txt", "a");
+  	fprintf(f, "assuring, %s\n", finalstr);
+  	fclose(f);
+	
+    if (!read_config_file(finalstr, SET_IN_SYS)) {
         raw_printf("Error(s) found in SYSCF_FILE, quitting.");
         terminate(EXIT_FAILURE);
     }
@@ -618,6 +644,11 @@ initoptions()
 #endif
 #endif
     initoptions_finish();
+	
+
+    /* initialize the random number generator */
+    setrandom();
+	
 }
 
 void
@@ -630,9 +661,6 @@ initoptions_init()
 
     /* set up the command parsing */
     reset_commands(TRUE); /* init */
-
-    /* initialize the random number generator */
-    setrandom();
 
     /* for detection of configfile options specified multiple times */
     iflags.opt_booldup = iflags.opt_compdup = (int *) 0;
@@ -665,6 +693,7 @@ initoptions_init()
     flags.end_own = FALSE;
     flags.end_top = 3;
     flags.end_around = 2;
+	flags.seed = -1;
     flags.paranoia_bits = PARANOID_PRAY; /* old prayconfirm=TRUE */
     flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
     flags.runmode = RUN_LEAP;
@@ -706,8 +735,8 @@ initoptions_init()
      */
     /* this detects the IBM-compatible console on most 386 boxes */
     if ((opts = nh_getenv("TERM")) && !strncmp(opts, "AT", 2)) {
-        if (!symset[PRIMARY].name)
-            load_symset("IBMGraphics", PRIMARY);
+        //if (!symset[PRIMARY].name)
+        //    load_symset("IBMGraphics", PRIMARY);
         if (!symset[ROGUESET].name)
             load_symset("RogueIBM", ROGUESET);
         switch_symbols(TRUE);
@@ -2098,7 +2127,70 @@ boolean tinitial, tfrom_file;
 #endif
         return;
     }
-
+	
+	fullname = "mtypeid";
+	if (!strncmpi(opts, fullname, 7)) {
+		op = string_for_opt(opts, FALSE);
+		mtypeid = atoi(op);
+		return;
+	}
+	
+	fullname = "reqlevel";
+	if (!strncmpi(opts, fullname, 8)) {
+		op = string_for_opt(opts, FALSE);
+		reqlevel = atoi(op);
+		return;
+	}
+	
+	fullname = "reqac";
+	if (!strncmpi(opts, fullname, 5)) {
+		op = string_for_opt(opts, FALSE);
+		reqac = atoi(op);
+		return;
+	}
+	
+	fullname = "reqdlvl";
+	if (!strncmpi(opts, fullname, 7)) {
+		op = string_for_opt(opts, FALSE);
+		reqdlvl = atoi(op);
+		return;
+	}
+	
+	fullname = "reqstr";
+	if (!strncmpi(opts, fullname, 6)) {
+		op = string_for_opt(opts, FALSE);
+		reqstr = atoi(op);
+		return;
+	}
+	
+	fullname = "reqdex";
+	if (!strncmpi(opts, fullname, 6)) {
+		op = string_for_opt(opts, FALSE);
+		reqdex = atoi(op);
+		return;
+	}
+	
+	fullname = "reqlyc";
+	if (!strncmpi(opts, fullname, 6)) {
+		op = string_for_opt(opts, FALSE);
+		reqlyc = atoi(op);
+		return;
+	}
+	
+	fullname = "stateffs";
+	if (!strncmpi(opts, fullname, 8)) {
+		op = string_for_opt(opts, FALSE);
+		reqstateffs = atoi(op);
+		return;
+	}
+	
+    fullname = "seed";
+	if (!strncmpi(opts, fullname, 4)) {
+		op = string_for_opt(opts, FALSE);
+		flags.seed = atoi(op);
+        return;
+    }
+	
     /* WINCAP
      * setting font options  */
     fullname = "font";
@@ -3169,7 +3261,7 @@ boolean tinitial, tfrom_file;
                         }
 
                 if (isbad)
-                    badoption(opts);
+                    badoption("MCM"); //opts);
                 else
                     add_menu_cmd_alias(c, default_menu_cmd_info[i].cmd);
             }
@@ -3187,11 +3279,11 @@ boolean tinitial, tfrom_file;
             return;
         } else if (!op) {
             /* a value is mandatory */
-            badoption(opts);
+            badoption("HIL"); //opts);
             return;
         }
         if (!set_status_hilites(op, tfrom_file))
-            badoption(opts);
+            badoption("HIL2"); //opts);
         return;
     }
 #endif
@@ -3378,7 +3470,7 @@ boolean tinitial, tfrom_file;
     }
 
     /* out of valid options */
-    badoption(opts);
+    badoption("OOVO");
 }
 
 static NEARDATA const char *menutype[] = { "traditional", "combination",
@@ -4545,7 +4637,11 @@ char *buf;
             Sprintf(buf, "%d", iflags.wc_fontsiz_text);
         else
             Strcpy(buf, defopt);
-    } else if (!strcmp(optname, "fruit"))
+    }
+	else if (!strcmp(optname, "mtypeid")) {
+        Sprintf(buf, "%d", mtypeid);
+	}
+	else if (!strcmp(optname, "fruit"))
         Sprintf(buf, "%s", pl_fruit);
     else if (!strcmp(optname, "gender"))
         Sprintf(buf, "%s", rolestring(flags.initgend, genders, adj));
@@ -5367,6 +5463,7 @@ struct wc_Opt wc_options[] = { { "ascii_map", WC_ASCII_MAP },
                                { "font_size_text", WC_FONTSIZ_TEXT },
                                { "font_status", WC_FONT_STATUS },
                                { "font_text", WC_FONT_TEXT },
+                               { "mtypeid", WC_FONT_TEXT },
                                { "map_mode", WC_MAP_MODE },
                                { "scroll_amount", WC_SCROLL_AMOUNT },
                                { "scroll_margin", WC_SCROLL_MARGIN },

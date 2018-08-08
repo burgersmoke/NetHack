@@ -264,7 +264,7 @@ boolean incr; /* true iff via incremental experience growth */
     int hpinc, eninc;
 
     if (!incr)
-        You_feel("more experienced.");
+        //You_feel("more experienced.");
 
     /* increase hit points (when polymorphed, do monster form first
        in order to retain normal human/whatever increase for later) */
@@ -295,7 +295,7 @@ boolean incr; /* true iff via incremental experience growth */
         ++u.ulevel;
         if (u.ulevelmax < u.ulevel)
             u.ulevelmax = u.ulevel;
-        pline("Welcome to experience level %d.", u.ulevel);
+        //pline("Welcome to experience level %d.", u.ulevel);
         adjabil(u.ulevel - 1, u.ulevel); /* give new intrinsics */
         reset_rndmonst(NON_PM);          /* new monster selection */
     }

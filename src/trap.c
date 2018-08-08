@@ -324,6 +324,9 @@ register int x, y, typ;
     register struct trap *ttmp;
     register struct rm *lev;
     boolean oldplace;
+	
+	if (typ == HOLE || typ == LEVEL_TELEP || typ == TRAPDOOR)
+		return (struct trap *) 0;
 
     if ((ttmp = t_at(x, y)) != 0) {
         if (ttmp->ttyp == MAGIC_PORTAL || ttmp->ttyp == VIBRATING_SQUARE)
@@ -805,6 +808,8 @@ dotrap(trap, trflags)
 register struct trap *trap;
 unsigned trflags;
 {
+	return;
+	
     register int ttype = trap->ttyp;
     register struct obj *otmp;
     boolean already_seen = trap->tseen,
@@ -2027,6 +2032,8 @@ int
 mintrap(mtmp)
 register struct monst *mtmp;
 {
+	return 0;
+	
     register struct trap *trap = t_at(mtmp->mx, mtmp->my);
     boolean trapkilled = FALSE;
     struct permonst *mptr = mtmp->data;

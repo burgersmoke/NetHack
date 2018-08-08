@@ -175,7 +175,7 @@ extern uchar oc_syms[MAXOCLASSES];      /* current class symbols */
 #define FOOD_SYM '%'
 #define POTION_SYM '!'
 #define SCROLL_SYM '?'
-#define SPBOOK_SYM '+'
+#define SPBOOK_SYM '&'
 #define WAND_SYM '/'
 #define GOLD_SYM '$'
 #define GEM_SYM '*'

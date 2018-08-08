@@ -388,13 +388,15 @@ int type;
 
     if (!IS_WALL(levl[x][y].typ)) /* avoid SDOORs on already made doors */
         type = DOOR;
+	if (type == SDOOR && !flags.secret_rooms)
+		type = DOOR;
     levl[x][y].typ = type;
     if (type == DOOR) {
         if (!rn2(3)) { /* is it a locked door, closed, or a doorway? */
             if (!rn2(5))
                 levl[x][y].doormask = D_ISOPEN;
-            else if (!rn2(6))
-                levl[x][y].doormask = D_LOCKED;
+            //else if (!rn2(6))
+            //    levl[x][y].doormask = D_LOCKED;
             else
                 levl[x][y].doormask = D_CLOSED;
 
@@ -433,9 +435,9 @@ int type;
         }
         /* newsym(x,y); */
     } else { /* SDOOR */
-        if (shdoor || !rn2(5))
-            levl[x][y].doormask = D_LOCKED;
-        else
+        //if (shdoor || !rn2(5))
+        //    levl[x][y].doormask = D_LOCKED;
+        //else
             levl[x][y].doormask = D_CLOSED;
 
         if (!shdoor && level_difficulty() >= 4 && !rn2(20))
@@ -499,8 +501,8 @@ int trap_type;
                 continue;
 
             rm = &levl[xx][yy + dy];
-            if (trap_type || !rn2(4)) {
-                rm->typ = SCORR;
+			if (trap_type || !rn2(4)) {
+                rm->typ = flags.secret_rooms ? SCORR : CORR;
                 if (trap_type) {
                     if ((trap_type == HOLE || trap_type == TRAPDOOR)
                         && !Can_fall_thru(&u.uz))
@@ -514,28 +516,28 @@ int trap_type;
                                          trap_engravings[trap_type], 0L,
                                          DUST);
                             wipe_engr_at(xx, yy - dy, 5,
-                                         FALSE); /* age it a little */
+                                         FALSE); // age it a little
                         }
                     }
                 }
-                dosdoor(xx, yy, aroom, SDOOR);
+                dosdoor(xx, yy, aroom, flags.secret_rooms ? SDOOR : DOOR);
             } else {
                 rm->typ = CORR;
                 if (rn2(7))
-                    dosdoor(xx, yy, aroom, rn2(5) ? SDOOR : DOOR);
+                    dosdoor(xx, yy, aroom, (flags.secret_rooms && rn2(5)) ? SDOOR : DOOR);
                 else {
                     /* inaccessible niches occasionally have iron bars */
-                    if (!rn2(5) && IS_WALL(levl[xx][yy].typ)) {
+                    /*if (!rn2(5) && IS_WALL(levl[xx][yy].typ)) {
                         levl[xx][yy].typ = IRONBARS;
                         if (rn2(3))
                             (void) mkcorpstat(CORPSE, (struct monst *) 0,
                                               mkclass(S_HUMAN, 0), xx,
                                               yy + dy, TRUE);
-                    }
+                    }*/
                     if (!level.flags.noteleport)
                         (void) mksobj_at(SCR_TELEPORTATION, xx, yy + dy, TRUE,
                                          FALSE);
-                    if (!rn2(3))
+                    if (flags.create_items && !rn2(3))
                         (void) mkobj_at(0, xx, yy + dy, TRUE);
                 }
             }
@@ -657,6 +659,12 @@ makelevel()
 
     {
         register s_level *slev = Is_special(&u.uz);
+		
+		if (flags.combat_setup)
+		{
+			makemaz("bigrm-5");
+			return;
+		}
 
         /* check for special levels */
         if (slev && !Is_rogue_level(&u.uz)) {
@@ -800,7 +808,7 @@ skip0:
            while a monster was on the stairs. Conclusion:
            we have to check for monsters on the stairs anyway. */
 
-        if (u.uhave.amulet || !rn2(3)) {
+        if (!flags.combat_setup && flags.create_mons && (u.uhave.amulet || !rn2(3))) {
             x = somex(croom);
             y = somey(croom);
             tmonst = makemon((struct permonst *) 0, x, y, NO_MM_FLAGS);
@@ -814,7 +822,7 @@ skip0:
             x = 2;
         while (!rn2(x))
             mktrap(0, 0, croom, (coord *) 0);
-        if (!rn2(3))
+        if (flags.create_items && !rn2(3))
             (void) mkgold(0L, somex(croom), somey(croom));
         if (Is_rogue_level(&u.uz))
             goto skip_nonrogue;
@@ -860,7 +868,7 @@ skip0:
         }
 
     skip_nonrogue:
-        if (!rn2(3)) {
+        if (flags.create_items && !rn2(3)) {
             (void) mkobj_at(0, somex(croom), somey(croom), TRUE);
             tryct = 0;
             while (!rn2(5)) {
@@ -959,7 +967,7 @@ boolean skip_lvl_checks;
                             place_object(otmp, x, y);
                     }
                 }
-                if (rn2(1000) < gemprob) {
+                if (flags.create_items && rn2(1000) < gemprob) {
                     for (cnt = rnd(2 + dunlev(&u.uz) / 3); cnt > 0; cnt--)
                         if ((otmp = mkobj(GEM_CLASS, FALSE)) != 0) {
                             if (otmp->otyp == ROCK) {
@@ -1232,7 +1240,7 @@ struct mkroom *aroom;
         return;
     }
 
-    dosdoor(x, y, aroom, rn2(8) ? DOOR : SDOOR);
+    dosdoor(x, y, aroom, rn2(8) ? DOOR : (flags.secret_rooms ? SDOOR : DOOR));
 }
 
 boolean
@@ -1252,6 +1260,8 @@ int num, mazeflag;
 struct mkroom *croom;
 coord *tm;
 {
+	return;
+	
     register int kind;
     coord m;
 

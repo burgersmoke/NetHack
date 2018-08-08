@@ -339,7 +339,8 @@ struct mkroom *sroom;
                 if (i >= goldlim)
                     i = 5 * level_difficulty();
                 goldlim -= i;
-                (void) mkgold((long) rn1(i, 10), sx, sy);
+				if (flags.create_items)
+	                (void) mkgold((long) rn1(i, 10), sx, sy);
                 break;
             case MORGUE:
                 if (!rn2(5))
@@ -364,7 +365,7 @@ struct mkroom *sroom;
                 if (!rn2(3)) {
                     struct obj *sobj = mk_tt_object(STATUE, sx, sy);
 
-                    if (sobj) {
+                    if (sobj && flags.create_items) {
                         for (i = rn2(5); i; i--)
                             (void) add_to_container(
                                 sobj, mkobj(RANDOM_CLASS, FALSE));
@@ -373,7 +374,7 @@ struct mkroom *sroom;
                 }
                 break;
             case ANTHOLE:
-                if (!rn2(3))
+                if (flags.create_items && !rn2(3))
                     (void) mkobj_at(FOOD_CLASS, sx, sy, FALSE);
                 break;
             }
@@ -383,10 +384,13 @@ struct mkroom *sroom;
         struct obj *chest;
         levl[tx][ty].typ = THRONE;
         (void) somexy(sroom, &mm);
-        (void) mkgold((long) rn1(50 * level_difficulty(), 10), mm.x, mm.y);
-        /* the royal coffers */
-        chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);
-        chest->spe = 2; /* so it can be found later */
+		if (flags.create_items)
+		{
+	        (void) mkgold((long) rn1(50 * level_difficulty(), 10), mm.x, mm.y);
+	        /* the royal coffers */
+	        chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);
+	        chest->spe = 2; /* so it can be found later */
+		}
         level.flags.has_court = 1;
         break;
     }

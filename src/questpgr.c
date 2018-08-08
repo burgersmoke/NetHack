@@ -53,7 +53,7 @@ dump_qtlist()
 
     for (msg = qt_list.chrole; msg->msgnum > 0; msg++) {
         (void) dlb_fseek(msg_file, msg->offset, SEEK_SET);
-        deliver_by_window(msg, NHW_MAP);
+     //   deliver_by_window(msg, NHW_MAP);
     }
 #endif /* DEBUG */
     return;
@@ -556,7 +556,7 @@ int msgnum;
 
     (void) dlb_fseek(msg_file, qt_msg->offset, SEEK_SET);
     if (qt_msg->delivery == 'p')
-        deliver_by_pline(qt_msg);
+	     deliver_by_pline(qt_msg);
     else if (msgnum == 1)
         deliver_by_window(qt_msg, NHW_MENU);
     else

@@ -304,6 +304,10 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
                 prscore(argc, argv);
                 nethack_exit(EXIT_SUCCESS);
             }
+			
+			if (strncmp(argv[1], "-port", 5) == 0) {
+				portnum = atoi(argv[2]);
+			}
 
 #ifdef MSWIN_GRAPHICS
             if (!strncmpi(argv[1], "-clearreg", 6)) { /* clear registry */

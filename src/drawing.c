@@ -26,7 +26,7 @@ nhsym l_syms[SYM_MAX] = DUMMY;   /* loaded symbols          */
 nhsym r_syms[SYM_MAX] = DUMMY;   /* rogue symbols           */
 
 nhsym warnsyms[WARNCOUNT] = DUMMY; /* the current warning display symbols */
-const char invisexplain[] = "remembered, unseen, creature";
+const char invisexplain[] = "remembered_unseen_creature";
 
 /* Default object class symbols.  See objclass.h.
  * {symbol, name, explain}
@@ -151,8 +151,8 @@ const struct symdef defsyms[MAXPCHARS] = {
 /*10*/ { '|', "wall", C(CLR_GRAY) },                 /* tlwall */
        { '|', "wall", C(CLR_GRAY) },                 /* trwall */
        { '.', "doorway", C(CLR_GRAY) },              /* ndoor */
-       { '-', "open door", C(CLR_BROWN) },           /* vodoor */
-       { '|', "open door", C(CLR_BROWN) },           /* hodoor */
+       { '.', "open door", C(CLR_BROWN) },           /* vodoor */
+       { '.', "open door", C(CLR_BROWN) },           /* hodoor */
        { '+', "closed door", C(CLR_BROWN) },         /* vcdoor */
        { '+', "closed door", C(CLR_BROWN) },         /* hcdoor */
        { '#', "iron bars", C(HI_METAL) },            /* bars */
@@ -166,9 +166,9 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '<', "ladder up", C(CLR_BROWN) },           /* upladder */
        { '>', "ladder down", C(CLR_BROWN) },         /* dnladder */
        { '_', "altar", C(CLR_GRAY) },                /* altar */
-       { '|', "grave", C(CLR_GRAY) },                /* grave */
+       { '_', "grave", C(CLR_GRAY) },                /* grave */
        { '\\', "opulent throne", C(HI_GOLD) },       /* throne */
-/*30*/ { '#', "sink", C(CLR_GRAY) },                 /* sink */
+/*30*/ { '\\', "sink", C(CLR_GRAY) },                 /* sink */
        { '{', "fountain", C(CLR_BLUE) },             /* fountain */
        { '}', "water", C(CLR_BLUE) },                /* pool */
        { '.', "ice", C(CLR_CYAN) },                  /* ice */
@@ -482,9 +482,9 @@ int nondefault;
         for (i = 0; i < SYM_MAX; i++)
             showsyms[i] = l_syms[i];
 #ifdef PC9800
-        if (SYMHANDLING(H_IBM) && ibmgraphics_mode_callback)
-            (*ibmgraphics_mode_callback)();
-        else if (!symset[currentgraphics].name && ascgraphics_mode_callback)
+        //if (SYMHANDLING(H_IBM) && ibmgraphics_mode_callback)
+        //    (*ibmgraphics_mode_callback)();
+        if (!symset[currentgraphics].name && ascgraphics_mode_callback)
             (*ascgraphics_mode_callback)();
 #endif
 #ifdef TERMLIB

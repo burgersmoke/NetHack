@@ -1656,9 +1656,10 @@ int x, y;
 
     obj_no_longer_held(otmp);
     /* (could bypass this vision update if there is already a boulder here) */
-    if (otmp->otyp == BOULDER)
-        block_point(x, y); /* vision */
-
+    if (otmp->otyp == BOULDER) {
+		return;
+		block_point(x, y); /* vision */
+	}
     /* obj goes under boulders */
     if (otmp2 && (otmp2->otyp == BOULDER)) {
         otmp->nexthere = otmp2->nexthere;

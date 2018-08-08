@@ -266,30 +266,30 @@ onMSNHCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
                         MAXWINDOWTEXT
                             - strlen(data->window_text[MSG_LINES - 1].text));
             } else {
-                /* check for "--more--" */
+                /* check for "--more--" 
                 if (!data->nevermore && more_prompt_check(hWnd)) {
                     int okkey = 0;
                     int chop;
                     // @@@ Ok respnses
 
-                    /* append more prompt and inticate the update */
+                    /* append more prompt and inticate the update 
                     strncat(
                         data->window_text[MSG_LINES - 1].text, MORE,
                         MAXWINDOWTEXT
                             - strlen(data->window_text[MSG_LINES - 1].text));
                     InvalidateRect(hWnd, NULL, TRUE);
 
-                    /* get the input */
-                    while (!okkey) {
+                    /* get the input 
+                    /*while (!okkey) {
                         int c = mswin_nhgetch();
 
                         switch (c) {
-                        /* space or enter */
+                        // space or enter
                         case ' ':
                         case '\015':
                             okkey = 1;
                             break;
-                        /* ESC */
+                        // ESC
                         case '\033':
                             data->nevermore = 1;
                             okkey = 1;
@@ -298,13 +298,20 @@ onMSNHCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
                             break;
                         }
                     }
+                    
+                    data->nevermore = 1;
+                    okkey = 1;
 
-                    /* erase the "--more--" prompt */
+                    // erase the "--more--" prompt
                     chop = strlen(data->window_text[MSG_LINES - 1].text)
                            - strlen(MORE);
                     data->window_text[MSG_LINES - 1].text[chop] = '\0';
                     data->lines_not_seen = 0;
-                }
+                } */
+                
+                data->nevermore = 1;
+                //okkey = 1;
+                data->lines_not_seen = 0;
 
                 /* check if the string is empty */
                 for (p = data->window_text[MSG_LINES - 1].text;
@@ -322,7 +329,7 @@ onMSNHCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
                 strncpy(data->window_text[MSG_LINES - 1].text, msg_data->text,
                         MAXWINDOWTEXT);
 
-                data->lines_not_seen++;
+                //data->lines_not_seen++;
                 data->lines_last_turn++;
             }
         }
@@ -348,7 +355,7 @@ onMSNHCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
     case MSNH_MSG_CLEAR_WINDOW: {
         data->lines_last_turn = 0;
         data->lines_not_seen = 0;
-        data->nevermore = 0;
+        data->nevermore = 1;
         break;
     }
     case MSNH_MSG_CARET:
@@ -803,6 +810,8 @@ can_append_text(HWND hWnd, int attr, const char *text)
 BOOL
 more_prompt_check(HWND hWnd)
 {
+    return FALSE;
+    
     PNHMessageWindow data;
     HDC hdc;
     HGDIOBJ saveFont;

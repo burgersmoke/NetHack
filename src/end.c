@@ -322,7 +322,7 @@ int sig_unused UNUSED;
 int
 done2()
 {
-    if (!paranoid_query(ParanoidQuit, "Really quit?")) {
+/* if (!paranoid_query(ParanoidQuit, "Really quit?")) {
 #ifndef NO_SIGNAL
         (void) signal(SIGINT, (SIG_RET_TYPE) done1);
 #endif
@@ -332,11 +332,11 @@ done2()
         if (multi > 0)
             nomul(0);
         if (multi == 0) {
-            u.uinvulnerable = FALSE; /* avoid ctrl-C bug -dlc */
+            u.uinvulnerable = FALSE; // avoid ctrl-C bug -dlc
             u.usleep = 0;
         }
         return 0;
-    }
+    }*/
 #if (defined(UNIX) || defined(VMS) || defined(LATTICE))
     if (wizard) {
         int c;
@@ -646,7 +646,7 @@ boolean taken;
                 if (Is_container(obj) || obj->otyp == STATUE)
                     obj->cknown = obj->lknown = 1;
             }
-            (void) display_inventory((char *) 0, TRUE);
+            (void) display_inventory((char *) 0, TRUE, (char *) 0);
             container_contents(invent, TRUE, TRUE, FALSE);
         }
         if (c == 'q')
@@ -912,6 +912,9 @@ int how;
         killer.format = 0;
         return;
     }
+	
+	sendDieMsg();
+	
     really_done(how);
 }
 
@@ -1263,6 +1266,8 @@ int how;
         putstr(endwin, 0, pbuf);
         putstr(endwin, 0, "");
     }
+	done_stopprint = 1;
+	
     if (!done_stopprint)
         display_nhwindow(endwin, TRUE);
     if (endwin != WIN_ERR)

@@ -125,8 +125,8 @@ OBJECT:'/',random
 OBJECT:'/',random
 OBJECT:'=',random
 OBJECT:'=',random
-OBJECT:'+',random
-OBJECT:'+',random
+OBJECT:'&',random
+OBJECT:'&',random
 OBJECT:'(',random
 OBJECT:'(',random
 OBJECT:'(',random

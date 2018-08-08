@@ -314,7 +314,10 @@ makerogueghost()
         return;
     ghost->msleeping = 1;
     ghost = christen_monst(ghost, roguename());
-
+	
+	if (!flags.create_items)
+		return;
+	
     if (rn2(4)) {
         ghostobj = mksobj_at(FOOD_RATION, x, y, FALSE, FALSE);
         ghostobj->quan = (long) rnd(7);

@@ -18,10 +18,22 @@ STATIC_DCL const char *NDECL(rank);
 STATIC_DCL void NDECL(bot1);
 STATIC_DCL void NDECL(bot2);
 
+char newbot1[COLNO];
+char newbot2[COLNO];
+
+char* getAttrs() { return newbot1; } // char* ret = malloc(strlen(newbot1)+1); strcpy(ret, newbot1); ret[strlen(newbot1)] = '\0'; return ret; }
+char* getStats() { return newbot2; } // char* ret = malloc(strlen(newbot2)+1); strcpy(ret, newbot2); ret[strlen(newbot2)] = '\0'; return ret; }
+
+void set_botl_buffz()
+{
+    memset(&newbot1[0], ' ', sizeof(newbot1));
+    memset(&newbot2[0], ' ', sizeof(newbot2));	
+}
+
 STATIC_OVL void
 bot1()
 {
-    char newbot1[MAXCO];
+	memset(&newbot1[0], ' ', sizeof(newbot1));
     register char *nb;
     register int i, j;
 
@@ -60,17 +72,17 @@ bot1()
             Sprintf(nb = eos(nb), "St:18/** ");
     } else
         Sprintf(nb = eos(nb), "St:%-1d ", ACURR(A_STR));
-    Sprintf(nb = eos(nb), "Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
+    Sprintf(nb = eos(nb), "Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d S:%ld I:%d",
             ACURR(A_DEX), ACURR(A_CON), ACURR(A_INT), ACURR(A_WIS),
-            ACURR(A_CHA));
+            ACURR(A_CHA), botl_score(), get_num_inv());
     Sprintf(nb = eos(nb),
             (u.ualign.type == A_CHAOTIC)
                 ? "  Chaotic"
                 : (u.ualign.type == A_NEUTRAL) ? "  Neutral" : "  Lawful");
-#ifdef SCORE_ON_BOTL
-    if (flags.showscore)
-        Sprintf(nb = eos(nb), " S:%ld", botl_score());
-#endif
+//#ifdef SCORE_ON_BOTL
+//    if (flags.showscore)
+//        Sprintf(nb = eos(nb), " ", botl_score());
+//#endif
     curs(WIN_STATUS, 1, 0);
     putstr(WIN_STATUS, 0, newbot1);
 }
@@ -78,7 +90,7 @@ bot1()
 STATIC_OVL void
 bot2()
 {
-    char newbot2[MAXCO];
+	memset(&newbot2[0], ' ', sizeof(newbot2));	
     register char *nb;
     int hp, hpmax;
     int cap = near_capacity();
@@ -89,19 +101,21 @@ bot2()
     if (hp < 0)
         hp = 0;
     (void) describe_level(newbot2);
-    Sprintf(nb = eos(newbot2), "%s:%-2ld HP:%d(%d) Pw:%d(%d) AC:%-2d",
+    Sprintf(nb = eos(newbot2), "%s:%-2ld HP:%d(%d) Pw:%d(%d) AC:%-2d R:%d SD:%d",
             encglyph(objnum_to_glyph(GOLD_PIECE)), money_cnt(invent), hp,
-            hpmax, u.uen, u.uenmax, u.uac);
+            hpmax, u.uen, u.uenmax, u.uac, nroom, nsdoor);
 
-    if (Upolyd)
-        Sprintf(nb = eos(nb), " HD:%d", mons[u.umonnum].mlevel);
-    else if (flags.showexp)
+    //if (Upolyd)
+    //    Sprintf(nb = eos(nb), " HD:%d", mons[u.umonnum].mlevel);
+    if (flags.showexp)
         Sprintf(nb = eos(nb), " Xp:%u/%-1ld", u.ulevel, u.uexp);
     else
         Sprintf(nb = eos(nb), " Exp:%u", u.ulevel);
 
     if (flags.time)
         Sprintf(nb = eos(nb), " T:%ld", moves);
+	Sprintf(nb = eos(nb), " Sq:%d", num_expl);
+	
     if (strcmp(hu_stat[u.uhs], "        ")) {
         Sprintf(nb = eos(nb), " ");
         Strcat(newbot2, hu_stat[u.uhs]);
@@ -132,6 +146,7 @@ void
 bot()
 {
     if (youmonst.data) {
+		set_botl_buffz();
         bot1();
         bot2();
     }

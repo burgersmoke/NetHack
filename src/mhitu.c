@@ -2524,7 +2524,7 @@ const char *str;
     if (rn2(20) < ACURR(A_CHA)) {
         Sprintf(qbuf, "\"Shall I remove your %s, %s?\"", str,
                 (!rn2(2) ? "lover" : !rn2(2) ? "dear" : "sweetheart"));
-        if (yn(qbuf) == 'n')
+        //if (yn(qbuf) == 'n')
             return;
     } else {
         char hairbuf[BUFSZ];

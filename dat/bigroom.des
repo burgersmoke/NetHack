@@ -381,85 +381,34 @@ MONSTER:random,random
 MAZE:"bigrm-5",' '
 GEOMETRY:center,center
 MAP
-                            ------------------                            
-                    ---------................---------                    
-              -------................................-------              
-         ------............................................------         
-      ----......................................................----      
-    ---............................................................---    
-  ---................................................................---  
----....................................................................---
-|........................................................................|
-|........................................................................|
-|........................................................................|
----....................................................................---
-  ---................................................................---  
-    ---............................................................---    
-      ----......................................................----      
-         ------............................................------         
-              -------................................-------              
-                    ---------................---------                    
-                            ------------------                            
+                                                                          
+                                                                          
+                                                                          
+                                                                          
+                                                                          
+                          ---------------------                           
+                          |...................|                           
+                          |...................|                           
+                          |...................|                           
+                          |...................|                           
+                          |...................|                           
+                          |...................|                           
+                          |...................|                           
+                          ---------------------                           
+                                                                          
+                                                                          
+                                                                          
+                                                                          
+                                                                          
 ENDMAP
 # Dungeon Description
-REGION:(00,00,72,18),lit,"ordinary"
+REGION:(00,00,75,20),lit,"ordinary",unfilled
 # Stairs
 STAIR:random,up
-STAIR:random,down
+#STAIR:random,down
+#(40,09),down
 # Non diggable walls
 NON_DIGGABLE:(00,00,72,18)
-# Objects
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-# Random traps
-TRAP:random,random
-TRAP:random,random
-TRAP:random,random
-TRAP:random,random
-TRAP:random,random
-TRAP:random,random
-# Random monsters.
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
-MONSTER:random,random
 
 
 # The Four Circles

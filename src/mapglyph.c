@@ -217,7 +217,7 @@ unsigned *ospecial;
     ch = showsyms[idx];
 #ifdef TEXTCOLOR
     /* Turn off color if no color defined, or rogue level w/o PC graphics. */
-    if (!has_color(color) || (Is_rogue_level(&u.uz) && !has_rogue_color))
+   // if (!has_color(color) || (Is_rogue_level(&u.uz) && !has_rogue_color))
         color = NO_COLOR;
 #endif
 

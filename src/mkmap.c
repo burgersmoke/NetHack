@@ -289,7 +289,7 @@ schar bg_typ, fg_typ;
                 n_loc_filled = 0;
                 flood_fill_rm(i, j, nroom + ROOMOFFSET, FALSE, FALSE);
                 if (n_loc_filled > 3) {
-                    add_room(min_rx, min_ry, max_rx, max_ry, FALSE, OROOM,
+                    add_room(min_rx, min_ry, max_rx, max_ry, TRUE, OROOM,
                              TRUE);
                     rooms[nroom - 1].irregular = TRUE;
                     if (nroom >= (MAXNROFROOMS * 2))
@@ -457,8 +457,8 @@ lev_init *init_lev;
     xchar lit = init_lev->lit, walled = init_lev->walled;
     int i;
 
-    if (lit < 0)
-        lit = (rnd(1 + abs(depth(&u.uz))) < 11 && rn2(77)) ? 1 : 0;
+    //if (lit < 0)
+        lit = 1; //(rnd(1 + abs(depth(&u.uz))) < 11 && rn2(77)) ? 1 : 0;
 
     new_locations = (char *) alloc((WIDTH + 1) * HEIGHT);
 

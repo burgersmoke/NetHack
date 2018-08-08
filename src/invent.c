@@ -22,7 +22,7 @@ STATIC_PTR int FDECL(ckunpaid, (struct obj *));
 STATIC_PTR int FDECL(ckvalidcat, (struct obj *));
 STATIC_PTR char *FDECL(safeq_xprname, (struct obj *));
 STATIC_PTR char *FDECL(safeq_shortxprname, (struct obj *));
-STATIC_DCL char FDECL(display_pickinv, (const char *, BOOLEAN_P, long *));
+STATIC_DCL char FDECL(display_pickinv, (const char *, BOOLEAN_P, char *, long *));
 STATIC_DCL char FDECL(display_used_invlets, (CHAR_P));
 STATIC_DCL void FDECL(tally_BUCX,
                       (struct obj *, int *, int *, int *, int *, int *));
@@ -480,6 +480,7 @@ added:
     addinv_core2(obj);
     carry_obj_effects(obj); /* carrying affects the obj */
     update_inventory();
+	
     return obj;
 }
 
@@ -1164,10 +1165,13 @@ register const char *let, *word;
         } else {
             Sprintf(qbuf, "What do you want to %s? [%s or ?*]", word, buf);
         }
-        if (in_doagain)
-            ilet = readchar();
-        else
-            ilet = yn_function(qbuf, (char *) 0, '\0');
+        //if (in_doagain)
+		//{
+            //ilet = readchar();
+			ilet = rcvDir();
+			//}
+        //else
+        //    ilet = yn_function(qbuf, (char *) 0, '\0');
         if (digit(ilet) && !allowcnt) {
             pline("No count allowed with this command.");
             continue;
@@ -1184,7 +1188,7 @@ register const char *let, *word;
                 /* signal presence of cnt */
                 allowcnt = (cnt >= prevcnt) ? 2 : 3;
             }
-            ilet = readchar();
+            ilet = rcvDir();
         }
         if (allowcnt == 3) {
             /* overflow detected; force cnt to be invalid */
@@ -1224,7 +1228,7 @@ register const char *let, *word;
 
             if (ilet == '?' && !*lets && *altlets)
                 allowed_choices = altlets;
-            ilet = display_pickinv(allowed_choices, TRUE,
+            ilet = display_pickinv(allowed_choices, TRUE, (char *) 0,
                                    allowcnt ? &ctmp : (long *) 0);
             if (!ilet)
                 continue;
@@ -1486,7 +1490,7 @@ unsigned *resultflags;
         if (buf[0] == '\033')
             return 0;
         if (index(buf, 'i')) {
-            if (display_inventory((char *) 0, TRUE) == '\033')
+            if (display_inventory((char *) 0, TRUE, (char *) 0) == '\033')
                 return 0;
         } else
             break;
@@ -1757,7 +1761,7 @@ identify(otmp)
 struct obj *otmp;
 {
     fully_identify_obj(otmp);
-    prinv((char *) 0, otmp, 0L);
+    //prinv((char *) 0, otmp, 0L);
     return 1;
 }
 
@@ -1943,7 +1947,7 @@ long quan;       /* if non-0, print this quantity, not obj->quan */
 int
 ddoinv()
 {
-    (void) display_inventory((char *) 0, FALSE);
+    //(void) display_inventory((char *) 0, FALSE);
     return 0;
 }
 
@@ -1994,17 +1998,32 @@ free_pickinv_cache()
     }
 }
 
+int get_num_inv()
+{
+	const char *lets = "";
+    struct obj *otmp;
+	int n;
+    for (n = 0, otmp = invent; otmp; otmp = otmp->nobj)
+        if (!lets || !*lets || index(lets, otmp->invlet))
+            n++;
+	return n;
+}
+
 /*
  * Internal function used by display_inventory and getobj that can display
  * inventory and return a count as well as a letter. If out_cnt is not null,
  * any count returned from the menu selection is placed here.
  */
+
 STATIC_OVL char
-display_pickinv(lets, want_reply, out_cnt)
+display_pickinv(lets, want_reply, invenbuf, out_cnt)
 register const char *lets;
 boolean want_reply;
+char *invenbuf;
 long *out_cnt;
 {
+	memset(&invenbuf[0], ' ', 2048);
+	
     struct obj *otmp;
     char ilet, ret;
     char *invlet = flags.inv_order;
@@ -2014,15 +2033,15 @@ long *out_cnt;
     menu_item *selected;
     struct obj **oarray;
 
-    if (flags.perm_invent && lets && *lets) {
-        /* partial inventory in perm_invent setting; don't operate on
-           full inventory window, use an alternate one instead; create
-           the first time needed and keep it for re-use as needed later */
+    /*if (flags.perm_invent && lets && *lets) {
+        // partial inventory in perm_invent setting; don't operate on
+        // full inventory window, use an alternate one instead; create
+        // the first time needed and keep it for re-use as needed later
         if (cached_pickinv_win == WIN_ERR)
             cached_pickinv_win = create_nhwindow(NHW_MENU);
         win = cached_pickinv_win;
     } else
-        win = WIN_INVEN;
+        win = WIN_INVEN;*/
 
     /*
      * Exit early if no inventory -- but keep going if we are doing
@@ -2076,7 +2095,9 @@ long *out_cnt;
             objarr_set(otmp, i++, oarray, (flags.sortloot == 'f'));
         }
 
-    start_menu(win);
+	strcpy(invenbuf, "--");
+    
+	//start_menu(win);
     any = zeroany;
     if (wizard && iflags.override_ID) {
         char prompt[BUFSZ];
@@ -2097,15 +2118,23 @@ nextclass:
         any = zeroany; /* zero */
         if (!flags.sortpack || otmp->oclass == *invlet) {
             if (flags.sortpack && !classcount) {
-                add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
+				//strcpy(invenbuf, let_to_name(*invlet, FALSE, (want_reply && iflags.menu_head_objsym)));
+                /*add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
                          let_to_name(*invlet, FALSE,
                                      (want_reply && iflags.menu_head_objsym)),
-                         MENU_UNSELECTED);
+                         MENU_UNSELECTED);*/
                 classcount++;
             }
             any.a_char = ilet;
-            add_menu(win, obj_to_glyph(otmp), &any, ilet, 0, ATR_NONE,
-                     doname(otmp), MENU_UNSELECTED);
+			strcat(invenbuf, doname(otmp));
+			strcat(invenbuf, ",");
+			char letstr[2];
+			letstr[0] = ilet;
+			letstr[1] = '\0';
+			strcat(invenbuf, letstr);
+			strcat(invenbuf, "--");
+            //add_menu(win, obj_to_glyph(otmp), &any, ilet, 0, ATR_NONE,
+            //         doname(otmp), MENU_UNSELECTED);
         }
     }
     if (flags.sortpack) {
@@ -2117,17 +2146,18 @@ nextclass:
         }
     }
     free(oarray);
-    end_menu(win, (char *) 0);
+    //end_menu(win, (char *) 0);
 
-    n = select_menu(win, want_reply ? PICK_ONE : PICK_NONE, &selected);
+   /* n = select_menu(win, want_reply ? PICK_ONE : PICK_NONE, &selected);
     if (n > 0) {
         ret = selected[0].item.a_char;
         if (out_cnt)
             *out_cnt = selected[0].count;
         free((genericptr_t) selected);
     } else
-        ret = !n ? '\0' : '\033'; /* cancelled */
-
+        ret = !n ? '\0' : '\033'; // cancelled */
+	
+	invenbuf[2047] = '\0';
     return ret;
 }
 
@@ -2139,11 +2169,12 @@ nextclass:
  * was selected.
  */
 char
-display_inventory(lets, want_reply)
+display_inventory(lets, want_reply, invenbuf)
 const char *lets;
 boolean want_reply;
+char* invenbuf;
 {
-    return display_pickinv(lets, want_reply, (long *) 0);
+    return display_pickinv(lets, want_reply, invenbuf, (long *) 0);
 }
 
 /*
@@ -2803,7 +2834,7 @@ boolean picked_some;
     } else {
         char buf[BUFSZ];
 
-        display_nhwindow(WIN_MESSAGE, FALSE);
+        /*display_nhwindow(WIN_MESSAGE, FALSE);
         tmpwin = create_nhwindow(NHW_MENU);
         if (dfeature) {
             putstr(tmpwin, 0, fbuf);
@@ -2822,7 +2853,7 @@ boolean picked_some;
             }
             putstr(tmpwin, 0, doname_with_price(otmp));
         }
-        display_nhwindow(tmpwin, TRUE);
+        display_nhwindow(tmpwin, FALSE); // TRUE
         destroy_nhwindow(tmpwin);
         if (felt_cockatrice)
             feel_cockatrice(otmp, FALSE);
@@ -3049,7 +3080,7 @@ doprarm()
         if (uarmf)
             lets[ct++] = obj_to_let(uarmf);
         lets[ct] = 0;
-        (void) display_inventory(lets, FALSE);
+        (void) display_inventory(lets, FALSE, (char *) 0);
     }
     return 0;
 }
@@ -3069,7 +3100,7 @@ doprring()
         if (uright)
             lets[ct++] = obj_to_let(uright);
         lets[ct] = 0;
-        (void) display_inventory(lets, FALSE);
+        (void) display_inventory(lets, FALSE, (char *) 0);
     }
     return 0;
 }
@@ -3112,7 +3143,7 @@ doprtool()
     if (!ct)
         You("are not using any tools.");
     else
-        (void) display_inventory(lets, FALSE);
+        (void) display_inventory(lets, FALSE, (char *) 0);
     return 0;
 }
 
@@ -3132,7 +3163,7 @@ doprinuse()
     if (!ct)
         You("are not wearing or wielding anything.");
     else
-        (void) display_inventory(lets, FALSE);
+        (void) display_inventory(lets, FALSE, (char *) 0);
     return 0;
 }
 

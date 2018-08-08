@@ -676,6 +676,8 @@ place_monster(mon, x, y)
 struct monst *mon;
 int x, y;
 {
+	if (!flags.create_mons)
+		return;
     if (mon == u.usteed
         /* special case is for convoluted vault guard handling */
         || (DEADMONSTER(mon) && !(mon->isgd && x == 0 && y == 0))) {

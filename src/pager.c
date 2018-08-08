@@ -156,9 +156,9 @@ int x, y;
     char *name, monnambuf[BUFSZ];
     boolean accurate = !Hallucination;
 
-    if (mtmp->data == &mons[PM_COYOTE] && accurate)
-        name = coyotename(mtmp, monnambuf);
-    else
+    //if (mtmp->data == &mons[PM_COYOTE] && accurate)
+    //    name = coyotename(mtmp, monnambuf);
+    //else
         name = distant_monnam(mtmp, ARTICLE_NONE, monnambuf);
 
     Sprintf(buf, "%s%s%s",
@@ -875,7 +875,7 @@ coord *click_cc;
             char invlet;
             struct obj *invobj;
 
-            invlet = display_inventory((const char *) 0, TRUE);
+            invlet = display_inventory((const char *) 0, TRUE, (char *) 0);
             if (!invlet || invlet == '\033')
                 return 0;
             *out_str = '\0';
@@ -992,13 +992,16 @@ boolean do_mons; /* True => monsters, False => objects */
             (ROWNO <= 100) ? "02" : (ROWNO <= 1000) ? "03" : "",
             (COLNO <= 100) ? "02" : (COLNO <= 1000) ? "03" : "");
 
-    win = create_nhwindow(NHW_TEXT);
-    lo_y = nearby ? max(u.uy - BOLT_LIM, 0) : 0;
-    lo_x = nearby ? max(u.ux - BOLT_LIM, 1) : 1;
-    hi_y = nearby ? min(u.uy + BOLT_LIM, ROWNO - 1) : ROWNO - 1;
-    hi_x = nearby ? min(u.ux + BOLT_LIM, COLNO - 1) : COLNO - 1;
+    //win = create_nhwindow(NHW_TEXT);
+	int lim = 15;
+    lo_y = nearby ? max(u.uy - lim, 0) : 0;
+    lo_x = nearby ? max(u.ux - lim, 1) : 1;
+    hi_y = nearby ? min(u.uy + lim, ROWNO - 1) : ROWNO - 1;
+    hi_x = nearby ? min(u.ux + lim, COLNO - 1) : COLNO - 1;
     for (y = lo_y; y <= hi_y; y++) {
         for (x = lo_x; x <= hi_x; x++) {
+			if (count > 2)
+				break;
             buf[0] = '\0';
             glyph = glyph_at(x, y);
             if (do_mons) {
@@ -1008,8 +1011,8 @@ boolean do_mons; /* True => monsters, False => objects */
                     bhitpos.x = x; /* [is this actually necessary?] */
                     bhitpos.y = y;
                     if (x == u.ux && y == u.uy && canspotself()) {
-                        (void) self_lookat(buf);
-                        ++count;
+                        //(void) self_lookat(buf);
+                        //++count;
                     } else if ((mtmp = m_at(x, y)) != 0) {
                         look_at_monster(buf, (char *) 0, mtmp, x, y);
                         ++count;
@@ -1031,7 +1034,7 @@ boolean do_mons; /* True => monsters, False => objects */
                 }
             }
             if (*buf) {
-                if (count == 1) {
+                /*if (count == 1) {
                     char which[12];
 
                     Strcpy(which, do_mons ? "monsters" : "objects");
@@ -1045,23 +1048,31 @@ boolean do_mons; /* True => monsters, False => objects */
                     putstr(win, 0, outbuf);
                     putstr(win, 0, "");
                 }
-                Sprintf(coordbuf, fmt, y, x);
+                Sprintf(coordbuf, fmt, y, x);*/
                 /* prefix: "C  row,column  " */
-                Sprintf(outbuf, "%s  %s  ", encglyph(glyph), coordbuf);
+                //Sprintf(outbuf, "%s  %s  ", encglyph(glyph), coordbuf);
                 /* guard against potential overflow */
                 buf[sizeof buf - 1 - strlen(outbuf)] = '\0';
                 Strcat(outbuf, buf);
-                putmixed(win, 0, outbuf);
+				Strcat(outbuf, ", ");
+                //putmixed(win, 0, outbuf);
             }
         }
     }
-    if (count)
-        display_nhwindow(win, TRUE);
-    else
-        pline("No %s are currently shown %s.",
-              do_mons ? "monsters" : "objects",
-              nearby ? "nearby" : "on the map");
-    destroy_nhwindow(win);
+	//if (*buf)
+		pline("&%s& ", outbuf);
+    //if (count)
+    //    display_nhwindow(win, TRUE);
+    //else
+    //    pline("No %s are currently shown %s.",
+    //          do_mons ? "monsters" : "objects",
+    //         nearby ? "nearby" : "on the map");
+    //destroy_nhwindow(win);
+}
+
+void look_all_n()
+{
+	look_all(TRUE, TRUE);
 }
 
 /* the '/' command */

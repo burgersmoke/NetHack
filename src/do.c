@@ -954,6 +954,11 @@ dodown()
         next_level(!trap);
         at_ladder = FALSE;
     }
+	if (flags.combat_setup)
+	{
+		clearlocks();
+		exit(0);
+	}
     return 1;
 }
 

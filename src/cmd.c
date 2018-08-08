@@ -592,7 +592,7 @@ wiz_identify(VOID_ARGS)
 {
     if (wizard) {
         iflags.override_ID = (int) cmd_from_func(wiz_identify);
-        if (display_inventory((char *) 0, TRUE) == -1)
+        if (display_inventory((char *) 0, TRUE, (char *) 0) == -1)
             identify_pack(0, FALSE);
         iflags.override_ID = 0;
     } else
@@ -3562,12 +3562,13 @@ const char *s;
     int is_mov;
 
 retry:
-    if (in_doagain || *readchar_queue)
+	dirsym = rcvDir();
+/*    if (in_doagain || *readchar_queue)
         dirsym = readchar();
     else
         dirsym = yn_function((s && *s != '^') ? s : "In what direction?",
                              (char *) 0, '\0');
-    /* remove the prompt string so caller won't have to */
+*/    /* remove the prompt string so caller won't have to */
     clear_nhwindow(WIN_MESSAGE);
 
     if (redraw_cmd(dirsym)) { /* ^R */

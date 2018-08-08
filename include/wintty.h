@@ -152,6 +152,10 @@ E int FDECL(has_color, (int color));
 
 E void FDECL(addtopl, (const char *));
 E void NDECL(more);
+E char* NDECL(get_topl);
+E void NDECL(clear_topl);
+E int NDECL(hasMore);
+E void NDECL(resetMore);
 E void FDECL(update_topl, (const char *));
 E void FDECL(putsyms, (const char *));
 

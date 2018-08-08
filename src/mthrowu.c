@@ -327,8 +327,8 @@ struct obj *obj;         /* missile (or stack providing it) */
      * early to avoid the dagger bug, anyone who modifies this code should
      * be careful not to use either one after it's been freed.
      */
-    if (sym)
-        tmp_at(DISP_FLASH, obj_to_glyph(singleobj));
+    //if (sym)
+    //    tmp_at(DISP_FLASH, obj_to_glyph(singleobj));
     while (range-- > 0) { /* Actually the loop is always exited by break */
         bhitpos.x += dx;
         bhitpos.y += dy;
@@ -462,12 +462,12 @@ struct obj *obj;         /* missile (or stack providing it) */
                 (void) drop_throw(singleobj, 0, bhitpos.x, bhitpos.y);
             break;
         }
-        tmp_at(bhitpos.x, bhitpos.y);
-        delay_output();
+        //tmp_at(bhitpos.x, bhitpos.y);
+        //delay_output();
     }
-    tmp_at(bhitpos.x, bhitpos.y);
-    delay_output();
-    tmp_at(DISP_END, 0);
+    //tmp_at(bhitpos.x, bhitpos.y);
+    //delay_output();
+    //tmp_at(DISP_END, 0);
 
     if (blindinc) {
         u.ucreamed += blindinc;

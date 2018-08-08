@@ -388,13 +388,15 @@ exerper()
     if (!(moves % 10)) {
         /* Hunger Checks */
 
-        int hs = (u.uhunger > 1000) ? SATIATED : (u.uhunger > 150)
+		int hs = NOT_HUNGRY;
+
+/*        int hs = (u.uhunger > 1000) ? SATIATED : (u.uhunger > 150)
                                                      ? NOT_HUNGRY
                                                      : (u.uhunger > 50)
                                                            ? HUNGRY
                                                            : (u.uhunger > 0)
                                                                  ? WEAK
-                                                                 : FAINTING;
+                                                                 : FAINTING; */
 
         debugpline0("exerper: Hunger checks");
         switch (hs) {
@@ -889,16 +891,16 @@ int oldlevel, newlevel;
             else
                 *(abil->ability) |= mask;
             if (!(*(abil->ability) & INTRINSIC & ~mask)) {
-                if (*(abil->gainstr))
-                    You_feel("%s!", abil->gainstr);
+                //if (*(abil->gainstr))
+                //    You_feel("%s!", abil->gainstr);
             }
         } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
             *(abil->ability) &= ~mask;
             if (!(*(abil->ability) & INTRINSIC)) {
-                if (*(abil->losestr))
-                    You_feel("%s!", abil->losestr);
-                else if (*(abil->gainstr))
-                    You_feel("less %s!", abil->gainstr);
+                //if (*(abil->losestr))
+                //    You_feel("%s!", abil->losestr);
+                //else if (*(abil->gainstr))
+                //    You_feel("less %s!", abil->gainstr);
             }
         }
         if (prevabil != *(abil->ability)) /* it changed */

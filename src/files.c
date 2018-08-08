@@ -414,7 +414,9 @@ int prefix;
 {
     FILE *fp;
 
+	printf("F2: %s\n", filename);
     filename = fqname(filename, prefix, prefix == TROUBLEPREFIX ? 3 : 0);
+	printf("Filename: %s\n", filename);
     fp = fopen(filename, mode);
     return fp;
 }
@@ -1355,7 +1357,7 @@ boolean uncomp;
          */
         if (istty && iflags.window_inited) {
             clear_nhwindow(WIN_MESSAGE);
-            more();
+            //more();
             /* No way to know if this is feasible */
             /* doredraw(); */
         }
@@ -2100,7 +2102,7 @@ int src;
 #ifdef SYSCF
     int n;
 #endif
-    char *bufp, *altp, buf[BUFSZ];
+    char *bufp, *altp, buf[BUFSZ*2];
     uchar translate[MAXPCHARS];
     int len;
 
@@ -2563,7 +2565,7 @@ read_config_file(filename, src)
 const char *filename;
 int src;
 {
-    char buf[4 * BUFSZ], *p;
+    char buf[5 * BUFSZ], *p;
     FILE *fp;
     boolean rv = TRUE; /* assume successful parse */
 
@@ -2585,6 +2587,10 @@ OR: Forbid multiline stuff for alternate config sources.
             *p = '\0';
         if (!parse_config_line(fp, buf, src)) {
             static const char badoptionline[] = "Bad option line: \"%s\"";
+			
+		  	FILE* f = fopen("log.txt", "a");
+		  	fprintf(f, "assuring, %s\n", badoptionline);
+		  	fclose(f);
 
             /* truncate buffer if it's long; this is actually conservative */
             if (strlen(buf) > BUFSZ - sizeof badoptionline)
@@ -2708,7 +2714,7 @@ read_wizkit()
     struct obj *otmp;
     boolean bad_items = FALSE, skip = FALSE;
 
-    if (!wizard || !(fp = fopen_wizkit_file()))
+    if (/*!wizard || */ !(fp = fopen_wizkit_file()))
         return;
 
     program_state.wizkit_wishing = 1;
@@ -2724,10 +2730,33 @@ read_wizkit()
                 *ep = '\0'; /* remove newline */
 
             if (buf[0]) {
+				boolean equip = FALSE;
+				if (buf[0] == '*')
+				{
+					equip = TRUE;
+					buf[0] = ' ';
+				}
                 otmp = readobjnam(buf, (struct obj *) 0);
                 if (otmp) {
                     if (otmp != &zeroobj)
+					{
                         wizkit_addinv(otmp);
+					    if (equip)
+						{
+							if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+					        	|| otmp->otyp == TIN_OPENER || otmp->otyp == FLINT || otmp->otyp == ROCK) {
+						        if (is_ammo(otmp) || is_missile(otmp)) {
+						            if (!uquiver)
+						                setuqwep(otmp);
+								} else if (!uwep)
+									setuwep(otmp);
+						        //else if (!uswapwep)
+						        //    setuswapwep(obj);
+							}
+							else if (otmp->oclass == ARMOR_CLASS)
+								wear_obj(otmp);
+					    }
+					}
                 } else {
                     /* .60 limits output line width to 79 chars */
                     raw_printf("Bad wizkit item: \"%.60s\"", buf);
@@ -3347,16 +3376,40 @@ assure_syscf_file()
      * Some ports don't like open()'s optional third argument;
      * VMS overrides open() usage with a macro which requires it.
      */
+	//FILE //f = fopen("log.txt", "a");
+	//fprintf(f, "--assure--\n");
+	//fclose(f);
+	
+	char* intstr = malloc(16);
+	int procnum = portnum-5555;
+	snprintf(intstr, 16, "%d", procnum);
+	char* finalstr = (char *) malloc(1 + strlen(SYSCF_FILE)+ strlen(intstr) );
+      strcpy(finalstr, SYSCF_FILE);
+      strcat(finalstr, intstr);
+	
+	//f = fopen("log.txt", "a");
+	//fprintf(f, "donefinal\n");
+	//fclose(f);
+	
+	//f = fopen("log.txt", "a");
+	//fprintf(f, "%s\n", finalstr);
+	//fclose(f);
+	
+	
 #ifndef VMS
-    fd = open(SYSCF_FILE, O_RDONLY);
+    fd = open(finalstr, O_RDONLY);
 #else
-    fd = open(SYSCF_FILE, O_RDONLY, 0);
+    fd = open(finalstr, O_RDONLY, 0);
 #endif
     if (fd >= 0) {
         /* readable */
         close(fd);
         return;
     }
+	//f = fopen("log.txt", "a");
+	//fprintf(f, "unable to open\n");
+	//fclose(f);
+	
     raw_printf("Unable to open SYSCF_FILE.\n");
     exit(EXIT_FAILURE);
 }

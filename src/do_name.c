@@ -704,8 +704,8 @@ register struct obj *obj;
                 OBJ_DESCR(objects[otemp.otyp]));
     else
         Sprintf(qbuf, "Call %s:", an(xname(&otemp)));
-    getlin(qbuf, buf);
-    if (!*buf || *buf == '\033')
+  //  getlin(qbuf, buf);
+    //if (!*buf || *buf == '\033')
         return;
 
     /* clear old name */

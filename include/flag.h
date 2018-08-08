@@ -15,6 +15,12 @@
  */
 
 struct flag {
+	int seed;
+	boolean secret_rooms;
+	boolean adjust_mlvl;
+	boolean create_mons;
+	boolean create_items;
+	boolean combat_setup;
     boolean acoustics;  /* allow dungeon sound messages */
     boolean autodig;    /* MRKR: Automatically dig */
     boolean autoquiver; /* Automatically fill quiver */

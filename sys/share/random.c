@@ -179,11 +179,11 @@ static long *rptr = &randtbl[1];
 
 static long *state = &randtbl[1];
 
-static int rand_type = TYPE_3;
-static int rand_deg = DEG_3;
-static int rand_sep = SEP_3;
+static int rand_type = TYPE_0; //3;
+static int rand_deg = DEG_0; //3;
+static int rand_sep = SEP_0; //3;
 
-static long *end_ptr = &randtbl[DEG_3 + 1];
+static long *end_ptr = &randtbl[DEG_0 + 1]; //3
 
 /*
  * srandom:

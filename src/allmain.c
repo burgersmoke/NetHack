@@ -4,6 +4,12 @@
 
 /* various code that was replicated in *main.c */
 
+
+#include <zmq.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+
 #include "hack.h"
 
 #ifndef NO_SIGNAL
@@ -14,10 +20,57 @@
 STATIC_DCL void NDECL(do_positionbar);
 #endif
 
+void* requester;
+
+void sendDieMsg()
+{
+	char* msg = "***died***";
+    zmq_send (requester, msg, 11, 0);
+	char buffer[1];	
+    zmq_recv (requester, buffer, 1, 0);
+}
+
+char rcvDir()
+{
+	////FILE //f = fopen("log.txt", "a");
+	//fprintf(f, "Sending ***dir***.\n");
+	
+	char* msg = "***dir***";
+    zmq_send (requester, msg, 10, 0);
+	
+	//fprintf(f, "Sent - waiting for response\n");
+    
+	char buffer[1];	
+    zmq_recv (requester, buffer, 1, 0);
+	
+	//fprintf(f, "Received dir: %c.\n", buffer[0]);
+	//fclose(f);
+	return buffer[0];
+}
+
 void
 moveloop(resuming)
 boolean resuming;
 {
+	char hostname[21];
+	
+	if (portnum == -1)
+	{
+		portnum = 5555;
+	}
+	//	FILE *of = fopen("conn.txt", "r");
+	//	fgets(hostname, 21, of);
+	//	fclose(of);
+	//}
+	//else
+	//{ // add tcp:...etc
+	sprintf(hostname, "tcp://localhost:%d", portnum);
+	//}
+	
+    void *scontext = zmq_ctx_new ();
+    requester = zmq_socket (scontext, ZMQ_REQ);
+    zmq_connect (requester, hostname);
+	
 #if defined(MICRO) || defined(WIN32)
     char ch;
     int abort_lev;
@@ -80,9 +133,15 @@ boolean resuming;
     u.uz0.dlevel = u.uz.dlevel;
     youmonst.movement = NORMAL_SPEED; /* give the hero some movement points */
     context.move = 0;
+	
+	int firstrun = 0;
 
     program_state.in_moveloop = 1;
+		
     for (;;) {
+		/*FILE *f = fopen("log.txt", "a");
+		fprintf(f, "1\n");
+		fclose(f);*/
 #ifdef SAFERHANGUP
         if (program_state.done_hup)
             end_of_input();
@@ -91,7 +150,9 @@ boolean resuming;
 #ifdef POSITIONBAR
         do_positionbar();
 #endif
-
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "2\n");
+		fclose(f);*/
         if (context.move) {
             /* actual time passed */
             youmonst.movement -= NORMAL_SPEED;
@@ -370,7 +431,9 @@ boolean resuming;
                 (void) pooleffects(FALSE);
 
         } /* actual time passed */
-
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "3\n");
+		fclose(f);*/
         /****************************************/
         /* once-per-player-input things go here */
         /****************************************/
@@ -399,7 +462,9 @@ boolean resuming;
         }
 
         context.move = 1;
-
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "4\n");
+		fclose(f);*/
         if (multi >= 0 && occupation) {
 #if defined(MICRO) || defined(WIN32)
             abort_lev = 0;
@@ -428,7 +493,7 @@ boolean resuming;
 #endif
             continue;
         }
-
+		
         if (iflags.sanity_check)
             sanity_check();
 
@@ -438,7 +503,287 @@ boolean resuming;
 #endif
 
         u.umoved = FALSE;
+		
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "5\n");
+		fclose(f);*/
+		
+		char *rcv_cmd = malloc(sizeof(char)*1);
+		*rcv_cmd = '\0';
+		program_state.something_worth_saving = 0;
+		
+		if (firstrun == 0)
+		{
+			//(void) scrolltele((struct obj *) 0);
+			// move player to upstair
+		    /*
+			u.dx = u.ux - xupstair; // xdir[dp - Cmd.dirchars];
+		    u.dy = u.uy - yupstair; // ydir[dp - Cmd.dirchars];
+		    u.dz = 0;
+            context.mv = TRUE;
+        	domove();*/
+			
+			if (flags.combat_setup)
+			{
+				int topleftx = u.ux;
+				int toplefty = u.uy;
 
+				while(1)
+				{
+					if (accessible(topleftx-1, toplefty))
+						topleftx -= 1;
+					else break;
+				}
+				while(1)
+				{
+					if (accessible(topleftx, toplefty-1))
+						toplefty -= 1;
+					else break;
+				}
+			
+				int botrightx = u.ux;
+				int botrighty = u.uy;
+				while(1)
+				{
+					if (accessible(botrightx+1, botrighty))
+						botrightx += 1;
+					else break;
+				}
+				while(1)
+				{
+					if (accessible(botrightx, botrighty+1))
+						botrighty += 1;
+					else break;
+				}
+				
+				u.ux = (topleftx + botrightx) / 2;
+				u.uy = (toplefty + botrighty) / 2;
+				
+				// create monster
+				(void) makemon(&mons[mtypeid], 0, 0, NO_MM_FLAGS);
+			
+				// increase player level to requested.
+		        if (reqlevel > MAXULEV)
+		            reqlevel = MAXULEV;
+		        while (u.ulevel < reqlevel)
+		            pluslvl(FALSE);
+			
+				// adjust str/dex as needed
+				if (reqstr > 0)
+					adjattrib(A_STR, reqstr, 1); // no message
+				if (reqdex > 0)
+					adjattrib(A_DEX, reqdex, 1);
+				if (reqac != 999)
+					u.uac = reqac;
+				if (reqdlvl != 999)
+					u.uz.dlevel = reqdlvl;
+				if (reqlyc >= 0)
+				{
+					if (reqlyc == 0)
+						u.ulycn = PM_WERERAT;
+					else if (reqlyc == 1)
+						u.ulycn = PM_WEREJACKAL;
+					else if (reqlyc == 2)
+						u.ulycn = PM_WEREWOLF;
+				}
+				if (reqstateffs > 1)
+				{ // 1: stun, 2: conf, 3: blind, 4: hallu, 5-x: hunger/burden
+					if (reqstateffs % 2 == 0)
+					{
+				        make_stunned((HStun & TIMEOUT) + (long) rn1(7, 16), FALSE);
+					}
+					if (reqstateffs % 3 == 0)
+					{
+						make_confused((HConfusion & TIMEOUT) + (long) rnd(100), FALSE);
+					}
+					if (reqstateffs % 5 == 0)
+					{
+						make_blinded((long) d(2, 10), FALSE);
+					}
+					if (reqstateffs % 7 == 0)
+					{
+				        make_hallucinated((HHallucination & TIMEOUT) + (long) rn1(5, 16), FALSE, 0L);
+					}
+				}
+			}
+			
+			objects[POT_WATER].oc_name_known = 1;
+        }
+		
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "6\n");
+		fclose(f);*/
+		
+        for (struct obj *obj = invent; obj; obj = obj->nobj)
+            if (not_fully_identified(obj))
+                (void) identify(obj);
+		
+		if (flags.combat_setup)
+			do_mapping();
+		
+		if (firstrun == 0)
+		{
+			if (nsdoor == 0)
+			{
+	            register int x, y;
+	            for (x = 1; x < COLNO; x++)
+	                for (y = 0; y < ROWNO; y++)
+	                    if (levl[x][y].typ == SDOOR || levl[x][y].typ == SCORR)
+							nsdoor ++;
+				bot();
+				//curs_on_u();
+			}
+			
+			firstrun = 1;
+			clear_topl();
+		}
+		if (flags.create_mons)
+			look_all_n();
+		
+		int prev_num_expl = num_expl;
+		num_expl = 0;
+		int y,x;
+		for (y = 0; y < ROWNO; y++) {
+		    for (x = 1; x < COLNO; x++) {
+				if (levl[x][y].typ != STONE && (levl[x][y].glyph >= GLYPH_CMAP_OFF && levl[x][y].glyph < GLYPH_EXPLODE_OFF && levl[x][y].glyph != cmap_to_glyph(S_stone)))
+					num_expl ++;
+			}
+		}
+		
+		if (num_expl - prev_num_expl > 10)
+		{
+			bot();
+			curs_on_u();
+		}
+		
+		//bot();
+		
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "7\n");
+		fclose(f);*/
+
+		/* *** SEND MESSAGE TO PY SCRIPT *** */
+		int numMonsters = monster_census(0);
+		if (flags.combat_setup && numMonsters == 0)
+		{ // monster dead
+			char* msg = "***mondead***";
+		    zmq_send (requester, msg, 14, 0);
+		}
+		else {
+			char* map = malloc(COLNO*(ROWNO+9));
+			memset(map, ' ', COLNO*(ROWNO+9));
+		
+			char* mapline = savemaptofile();
+			int mp;
+			for (mp = 0; mp < strlen(mapline); mp ++)
+			{
+				map[mp] = mapline[mp];
+			}
+					
+			char* attline = getAttrs();
+
+			int i;
+			for (i = 0; i < strlen(attline); i ++)
+			{
+				map[(ROWNO*COLNO)+i] = attline[i];
+			}
+		
+			char* sttline = getStats();		
+			int j;
+			for (j = 0; j < 80; j ++)
+			{
+				map[(ROWNO*COLNO)+i+j] = sttline[j];
+			}
+		
+			char* topline = get_topl();
+			map[(ROWNO*COLNO)+i+j+0] = '-';
+			map[(ROWNO*COLNO)+i+j+1] = '-';
+			int k;
+			for (k = 0; k < strlen(topline); k ++)
+			{
+				map[(ROWNO*COLNO)+i+j+2+k] = topline[k];
+			}
+			k ++;
+			clear_topl();
+
+			map[(ROWNO*COLNO)+i+j+2+k-1] = '*';
+			map[(ROWNO*COLNO)+i+j+2+k] = '*';
+		
+			char intbuf[5];
+			sprintf(intbuf, "%d", u.ux);
+			map[(ROWNO*COLNO)+i+j+2+k+1] = intbuf[0];
+			map[(ROWNO*COLNO)+i+j+2+k+2] = intbuf[1];
+			map[(ROWNO*COLNO)+i+j+2+k+3] = '-';
+			char intbuf2[5];
+			sprintf(intbuf2, "%d", u.uy);
+			map[(ROWNO*COLNO)+i+j+2+k+4] = intbuf2[0];
+			map[(ROWNO*COLNO)+i+j+2+k+5] = intbuf2[1];
+			map[(ROWNO*COLNO)+i+j+2+k+6] = '-';
+		
+			char intbuf3[5];
+			sprintf(intbuf3, "%d", back_to_glyph(u.ux, u.uy));
+			map[(ROWNO*COLNO)+i+j+2+k+7] = '(';
+			map[(ROWNO*COLNO)+i+j+2+k+8] = intbuf3[0];
+			map[(ROWNO*COLNO)+i+j+2+k+9] = intbuf3[1];
+			map[(ROWNO*COLNO)+i+j+2+k+10] = intbuf3[2];
+			map[(ROWNO*COLNO)+i+j+2+k+11] = intbuf3[3];
+			map[(ROWNO*COLNO)+i+j+2+k+12] = ')';
+		
+			map[(ROWNO*COLNO)+i+j+2+k+13] = '\0';
+			map[(ROWNO*COLNO)+i+j+2+k+14] = '\0';
+			map = realloc(map, (ROWNO*COLNO)+i+j+2+k+14);
+
+	        zmq_send (requester, map, (ROWNO*COLNO)+i+j+2+k+14, 0);
+		}
+		/* *** RCV COMMAND *** */
+		
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "8\n");
+		fclose(f);*/
+		
+        char buffer[1];	
+        zmq_recv (requester, buffer, 1, 0);
+		rcv_cmd[0] = buffer[0];
+		
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "8.1: %s\n", rcv_cmd);
+		fclose(f);*/
+		
+		if (rcv_cmd[0] == 'Q')
+		{ // exit
+			end_of_input();
+			break;
+		}
+		else if (rcv_cmd[0] == '~')
+		{
+			char* invenbuf = malloc(2048);
+			(void) display_inventory((char *) 0, FALSE, &invenbuf[0]);
+			zmq_send (requester, invenbuf, 2048, 0);
+
+			rcv_cmd[0] = 'i';
+	        context.move = FALSE;
+	        multi = 0;
+		}
+		
+		/*if (rcv_cmd[0] == 'M')
+		{
+			fprintf(f, "Received request for full map.");
+            register int x, y;
+
+			// from read.c, case SCR_MAGIC_MAPPING
+			do_mapping(); // reveals secret passages,but not doors
+			
+			rcv_cmd[0] = '.'; // change to wait
+		}*/
+		
+		resetMore();
+	
+		u.uhunger = 900;
+		
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "8.2\n");
+		fclose(f);*/
+		
         if (multi > 0) {
             lookaround();
             if (!multi) {
@@ -455,20 +800,31 @@ boolean resuming;
                 domove();
             } else {
                 --multi;
-                rhack(save_cm);
+				rhack(save_cm);
             }
-        } else if (multi == 0) {
+        }
+		else if (multi == 0) {
 #ifdef MAIL
             ckmailstatus();
 #endif
-            rhack((char *) 0);
+			if (*rcv_cmd == '\0')
+			{
+				rhack((char *) 0);
+			}
+			else
+				rhack(rcv_cmd);
         }
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "8.5\n");
+		fclose(f);*/
         if (u.utotype)       /* change dungeon level */
             deferred_goto(); /* after rhack() */
         /* !context.move here: multiple movement command stopped */
         else if (flags.time && (!context.move || !context.mv))
             context.botl = 1;
-
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "8.6\n");
+		fclose(f);*/
         if (vision_full_recalc)
             vision_recalc(0); /* vision! */
         /* when running in non-tport mode, this gets done through domove() */
@@ -478,7 +834,13 @@ boolean resuming;
                 context.botl = 1;
             display_nhwindow(WIN_MAP, FALSE);
         }
+		/*f = fopen("log.txt", "a");
+		fprintf(f, "9\n");
+		fclose(f);*/
     }
+	
+    zmq_close (requester);
+    zmq_ctx_destroy (scontext);
 }
 
 void
@@ -524,7 +886,7 @@ display_gamewindows()
 #endif
     display_nhwindow(WIN_MESSAGE, FALSE);
     clear_glyph_buffer();
-    display_nhwindow(WIN_MAP, FALSE);
+    display_nhwindow(WIN_MAP, FALSE);	
 }
 
 void
@@ -536,6 +898,9 @@ newgame()
     gameDiskPrompt();
 #endif
 
+	//FILE *f = fopen("log.txt", "w");
+	//fclose(f);
+	
     context.botlx = 1;
     context.ident = 1;
     context.stethoscope_move = -1L;
@@ -571,8 +936,11 @@ newgame()
     /* quest_init();  --  Now part of role_init() */
 
     mklev();
-    u_on_upstairs();
-    if (wizard)
+    if (flags.combat_setup)
+		u_on_rndspot(1);
+	else
+		u_on_upstairs();
+	if (wizard)
         obj_delivery(FALSE); /* finish wizkit */
     vision_reset();          /* set up internals for level (after mklev) */
     check_special_room(FALSE);
@@ -584,7 +952,7 @@ newgame()
 
     if (flags.legacy) {
         flush_screen(1);
-        com_pager(1);
+  //      com_pager(1);
     }
 
 #ifdef INSURANCE
@@ -600,7 +968,7 @@ newgame()
 #endif
 
     /* Success! */
-    welcome(TRUE);
+    //welcome(TRUE);
     return;
 }
 

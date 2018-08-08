@@ -782,13 +782,15 @@ makepicks:
                  MENU_UNSELECTED);
         Sprintf(pbuf, "Is this ok? [yn%sq]", iflags.renameallowed ? "a" : "");
         end_menu(win, pbuf);
-        n = select_menu(win, PICK_ONE, &selected);
+ //       n = select_menu(win, PICK_ONE, &selected);
         /* [pick-one menus with a preselected entry behave oddly...] */
         choice = (n > 0) ? selected[n - 1].item.a_int : (n == 0) ? 1 : -1;
         if (selected)
             free((genericptr_t) selected), selected = 0;
         destroy_nhwindow(win);
 
+		choice = 1;
+		
         switch (choice) {
         default:          /* 'q' or ESC */
             goto give_up; /* quit */

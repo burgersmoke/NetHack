@@ -1440,13 +1440,13 @@ zap_dig()
         }
     }
     digdepth = rn1(18, 8);
-    tmp_at(DISP_BEAM, cmap_to_glyph(S_digbeam));
+    //tmp_at(DISP_BEAM, cmap_to_glyph(S_digbeam));
     while (--digdepth >= 0) {
         if (!isok(zx, zy))
             break;
         room = &levl[zx][zy];
-        tmp_at(zx, zy);
-        delay_output(); /* wait a little bit */
+        //tmp_at(zx, zy);
+        //delay_output(); /* wait a little bit */
 
         if (pitdig) { /* we are already in a pit if this is true */
             coord cc;
@@ -1553,7 +1553,7 @@ zap_dig()
         zx += u.dx;
         zy += u.dy;
     }                    /* while */
-    tmp_at(DISP_END, 0); /* closing call */
+    //tmp_at(DISP_END, 0); /* closing call */
 
     if (pitflow && isok(flow_x, flow_y)) {
         struct trap *ttmp = t_at(flow_x, flow_y);

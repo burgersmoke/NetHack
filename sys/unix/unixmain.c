@@ -108,6 +108,11 @@ char *argv[];
     if (!dir)
         dir = nh_getenv("HACKDIR");
 #endif
+	
+	/*FILE *f = fopen('log3.txt', 'w');
+	fprintf(f, "argv1: %s", argv[1]);
+	fclose(f);*/
+	
     if (argc > 1) {
 #ifdef CHDIR
         if (!strncmp(argv[1], "-d", 2) && argv[1][2] != 'e') {
@@ -150,7 +155,14 @@ char *argv[];
                 prscore(argc, argv);
                 exit(EXIT_SUCCESS);
             }
+			
+			if (strncmp(argv[1], "-port", 5) == 0)
+			{
+				portnum = atoi(argv[2]);
+			}
     }
+	if (portnum == -1)
+		portnum = 5555;
 
 /*
  * Change directories before we initialize the window system so
@@ -227,14 +239,15 @@ char *argv[];
        or holds a generic user name like "player" or "games" */
     plnamesuffix();
 
-    if (wizard) {
-        /* use character name rather than lock letter for file names */
-        locknum = 0;
-    } else {
-        /* suppress interrupts while processing lock file */
-        (void) signal(SIGQUIT, SIG_IGN);
-        (void) signal(SIGINT, SIG_IGN);
-    }
+    //if (wizard) {
+    /* use character name rather than lock letter for file names */
+    locknum = 0;
+    sprintf(plname, "Merl%d", portnum);
+    //} else {
+    //     /* suppress interrupts while processing lock file */
+    //    (void) signal(SIGQUIT, SIG_IGN);
+    //    (void) signal(SIGINT, SIG_IGN);
+    //}
     /*
      * getlock() complains and quits if there is already a game
      * in progress for current character name (when locknum == 0)
@@ -421,17 +434,17 @@ char *argv[];
 
     /* XXX This is deprecated in favor of SYSCF with MAXPLAYERS.  Make
      * an error in next release. */
-    if (argc > 1)
-        locknum = atoi(argv[1]);
+    //if (argc > 1)
+    //    locknum = atoi(argv[1]);
 #ifdef MAX_NR_OF_PLAYERS
     /* limit to compile-time limit */
-    if (!locknum || locknum > MAX_NR_OF_PLAYERS)
-        locknum = MAX_NR_OF_PLAYERS;
+    //if (!locknum || locknum > MAX_NR_OF_PLAYERS)
+    //    locknum = MAX_NR_OF_PLAYERS;
 #endif
 #ifdef SYSCF
     /* let syscf override compile-time limit */
-    if (!locknum || (sysopt.maxplayers && locknum > sysopt.maxplayers))
-        locknum = sysopt.maxplayers;
+    //if (!locknum || (sysopt.maxplayers && locknum > sysopt.maxplayers))
+    //    locknum = sysopt.maxplayers;
 #endif
 }
 

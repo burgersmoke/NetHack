@@ -3046,10 +3046,10 @@ struct obj **pobj; /* object tossed/used, set to NULL
         allow_skip = !rn2(3);
     }
 
-    if (weapon == FLASHED_LIGHT) {
+    /*if (weapon == FLASHED_LIGHT) {
         tmp_at(DISP_BEAM, cmap_to_glyph(S_flashbeam));
     } else if (weapon != ZAPPED_WAND && weapon != INVIS_BEAM)
-        tmp_at(DISP_FLASH, obj_to_glyph(obj));
+        tmp_at(DISP_FLASH, obj_to_glyph(obj));*/
 
     while (range-- > 0) {
         int x, y;
@@ -3067,7 +3067,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
 
         if (is_pick(obj) && inside_shop(x, y)
             && (mtmp = shkcatch(obj, x, y))) {
-            tmp_at(DISP_END, 0);
+            //tmp_at(DISP_END, 0);
             return mtmp;
         }
 
@@ -3160,7 +3160,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
                     obj->ox = u.ux, obj->oy = u.uy;
                     (void) flash_hits_mon(mtmp, obj);
                 } else {
-                    tmp_at(DISP_END, 0);
+                    //tmp_at(DISP_END, 0);
                     return mtmp; /* caller will call flash_hits_mon */
                 }
             } else if (weapon == INVIS_BEAM) {
@@ -3173,7 +3173,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
                     return mtmp;
             } else if (weapon != ZAPPED_WAND) {
                 /* THROWN_WEAPON, KICKED_WEAPON */
-                tmp_at(DISP_END, 0);
+                //tmp_at(DISP_END, 0);
                 if (cansee(bhitpos.x, bhitpos.y) && !canspotmon(mtmp))
                     map_invisible(bhitpos.x, bhitpos.y);
                 return mtmp;
@@ -3185,8 +3185,8 @@ struct obj **pobj; /* object tossed/used, set to NULL
         } else {
             if (weapon == ZAPPED_WAND && obj->otyp == WAN_PROBING
                 && glyph_is_invisible(levl[bhitpos.x][bhitpos.y].glyph)) {
-                unmap_object(bhitpos.x, bhitpos.y);
-                newsym(x, y);
+                //unmap_object(bhitpos.x, bhitpos.y);
+                //newsym(x, y);
             }
         }
         if (fhito) {
@@ -3198,7 +3198,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
                      && OBJ_AT(bhitpos.x, bhitpos.y))
                     || ship_object(obj, bhitpos.x, bhitpos.y,
                                    costly_spot(bhitpos.x, bhitpos.y)))) {
-                tmp_at(DISP_END, 0);
+                //tmp_at(DISP_END, 0);
                 return (struct monst *) 0;
             }
         }
@@ -3236,8 +3236,8 @@ struct obj **pobj; /* object tossed/used, set to NULL
                 unmap_object(bhitpos.x, bhitpos.y);
                 newsym(x, y);
             }
-            tmp_at(bhitpos.x, bhitpos.y);
-            delay_output();
+            //tmp_at(bhitpos.x, bhitpos.y);
+            //delay_output();
             /* kicked objects fall in pools */
             if ((weapon == KICKED_WEAPON)
                 && (is_pool(bhitpos.x, bhitpos.y)
@@ -3276,8 +3276,8 @@ struct obj **pobj; /* object tossed/used, set to NULL
         point_blank = FALSE; /* affects passing through iron bars */
     }
 
-    if (weapon != ZAPPED_WAND && weapon != INVIS_BEAM)
-        tmp_at(DISP_END, 0);
+    //if (weapon != ZAPPED_WAND && weapon != INVIS_BEAM)
+        //tmp_at(DISP_END, 0);
 
     if (shopdoor)
         pay_for_damage("destroy", FALSE);
@@ -3320,18 +3320,18 @@ int dx, dy;
     for (i = 0; i < 8; i++)
         if (xdir[i] == dx && ydir[i] == dy)
             break;
-    tmp_at(DISP_FLASH, cmap_to_glyph(boom));
+    //tmp_at(DISP_FLASH, cmap_to_glyph(boom));
     for (ct = 0; ct < 10; ct++) {
         i = (i + 8) % 8;                          /* 0..7 (8 -> 0, -1 -> 7) */
         boom = (S_boomleft + S_boomright - boom); /* toggle */
-        tmp_at(DISP_CHANGE, cmap_to_glyph(boom)); /* change glyph */
+        //tmp_at(DISP_CHANGE, cmap_to_glyph(boom)); /* change glyph */
         dx = xdir[i];
         dy = ydir[i];
         bhitpos.x += dx;
         bhitpos.y += dy;
         if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
             m_respond(mtmp);
-            tmp_at(DISP_END, 0);
+            //tmp_at(DISP_END, 0);
             return mtmp;
         }
         if (!ZAP_POS(levl[bhitpos.x][bhitpos.y].typ)
@@ -3348,13 +3348,13 @@ int dx, dy;
                 endmultishot(TRUE);
                 break;
             } else { /* we catch it */
-                tmp_at(DISP_END, 0);
+                //tmp_at(DISP_END, 0);
                 You("skillfully catch the boomerang.");
                 return &youmonst;
             }
         }
-        tmp_at(bhitpos.x, bhitpos.y);
-        delay_output();
+        //tmp_at(bhitpos.x, bhitpos.y);
+        //delay_output();
         if (IS_SINK(levl[bhitpos.x][bhitpos.y].typ)) {
             if (!Deaf)
                 pline("Klonk!");
@@ -3365,7 +3365,7 @@ int dx, dy;
         if (ct % 5 != 0)
             i += (counterclockwise ? -1 : 1);
     }
-    tmp_at(DISP_END, 0); /* do not leave last symbol */
+    //tmp_at(DISP_END, 0); /* do not leave last symbol */
     return (struct monst *) 0;
 }
 
@@ -3848,7 +3848,7 @@ register int dx, dy;
         range = 1;
     save_bhitpos = bhitpos;
 
-    tmp_at(DISP_BEAM, zapdir_to_glyph(dx, dy, abstype));
+    //tmp_at(DISP_BEAM, zapdir_to_glyph(dx, dy, abstype));
     while (range-- > 0) {
         lsx = sx;
         sx += dx;
@@ -3861,12 +3861,12 @@ register int dx, dy;
                 if (mon && !canspotmon(mon))
                     map_invisible(sx, sy);
                 else if (!mon && glyph_is_invisible(levl[sx][sy].glyph)) {
-                    unmap_object(sx, sy);
-                    newsym(sx, sy);
+                    //unmap_object(sx, sy);
+                    //newsym(sx, sy);
                 }
-                if (ZAP_POS(lev->typ) || (isok(lsx, lsy) && cansee(lsx, lsy)))
-                    tmp_at(sx, sy);
-                delay_output(); /* wait a little */
+                if (ZAP_POS(lev->typ) || (isok(lsx, lsy) && cansee(lsx, lsy))) { }
+                    //tmp_at(sx, sy);
+                //delay_output(); /* wait a little */
             }
         } else
             goto make_bounce;
@@ -4026,11 +4026,11 @@ register int dx, dy;
                     dx = -dx;
                     break;
                 }
-                tmp_at(DISP_CHANGE, zapdir_to_glyph(dx, dy, abstype));
+                //tmp_at(DISP_CHANGE, zapdir_to_glyph(dx, dy, abstype));
             }
         }
     }
-    tmp_at(DISP_END, 0);
+    //tmp_at(DISP_END, 0);
     if (type == ZT_SPELL(ZT_FIRE))
         explode(sx, sy, type, d(12, 6), 0, EXPL_FIERY);
  get_out_buzz:

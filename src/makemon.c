@@ -952,6 +952,9 @@ struct monst *mon;
 unsigned gpflags;
 coord *cc;
 {
+	if (!flags.create_mons)
+	    return FALSE;
+	
     int tryct = 0;
     int nx,ny;
     boolean good;
@@ -1024,6 +1027,11 @@ register struct permonst *ptr;
 register int x, y;
 int mmflags;
 {
+	if (!flags.create_mons)
+		return (struct monst *) 0;
+	
+	if (flags.combat_setup && ptr != &mons[mtypeid]) return (struct monst *) 0;
+	
     register struct monst *mtmp;
     int mndx, mcham, ct, mitem;
     boolean anymon = (!ptr);
@@ -1629,6 +1637,8 @@ int
 adj_lev(ptr)
 register struct permonst *ptr;
 {
+	if (flags.combat_setup && !flags.adjust_mlvl)
+		return ptr->mlevel;
     int tmp, tmp2;
 
     if (ptr == &mons[PM_WIZARD_OF_YENDOR]) {
@@ -1986,7 +1996,7 @@ register struct monst *mtmp;
     struct obj *otmp;
     int mx, my;
 
-    if (!mtmp)
+    if (!flags.create_mons || !mtmp)
         return;
     mx = mtmp->mx;
     my = mtmp->my;

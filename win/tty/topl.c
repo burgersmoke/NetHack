@@ -200,7 +200,8 @@ more()
     if (flags.standout)
         standoutend();
 
-    xwaitforspace("\033 ");
+    //xwaitforspace("\033 ");
+	morc = '\033';
 
     if (morc == '\033')
         cw->flags |= WIN_STOP;
@@ -218,6 +219,22 @@ more()
     ttyDisplay->inmore = 0;
 }
 
+char toplbuf[COLNO*2];
+char* get_topl()
+{
+	char* ret = malloc(strlen(toplbuf)+1);
+	strcpy(ret, toplbuf);
+	ret[strlen(toplbuf)] = '\0';
+	return ret;
+}
+
+void clear_topl()
+{
+	memset(&toplbuf[0], ' ', sizeof(toplbuf));
+	*toplines = '\0';
+	*toplbuf = '\0';
+}
+
 void
 update_topl(bp)
 register const char *bp;
@@ -227,6 +244,7 @@ register const char *bp;
     int notdied = 1;
     struct WinDesc *cw = wins[WIN_MESSAGE];
 
+	memset(&toplbuf[0], ' ', sizeof(toplbuf));
     /* If there is room on the line, print message on same line */
     /* But messages like "You die..." deserve their own line */
     n0 = strlen(bp);
@@ -238,6 +256,17 @@ register const char *bp;
         cw->curx += 2;
         if (!(cw->flags & WIN_STOP))
             addtopl(bp);
+		int i=0;
+		for (i=0; i < strlen(toplines); i++)
+		{
+			if (i < COLNO*2)
+				toplbuf[i] = toplines[i];
+		}
+	//	int k;
+	//	for (k = 0; k < strlen(bp); k ++)
+	//		if (i+k < COLNO*2)
+	//			toplbuf[i+k] = bp[k];
+		//strncpy(toplbuf, bp, COLNO*2);
         return;
     } else if (!(cw->flags & WIN_STOP)) {
         if (ttyDisplay->toplin == 1)
@@ -247,7 +276,8 @@ register const char *bp;
             cw->curx = cw->cury = 0;   /* from home--cls() & docorner(1,n) */
         }
     }
-    remember_topl();
+    //remember_topl();
+	
     (void) strncpy(toplines, bp, TBUFSZ);
     toplines[TBUFSZ - 1] = 0;
 
@@ -268,6 +298,10 @@ register const char *bp;
         cw->flags &= ~WIN_STOP;
     if (!(cw->flags & WIN_STOP))
         redotoplin(toplines);
+	
+//	toplbuf = realloc(toplbuf, sizeof(toplines));
+	memset(&toplbuf[0], ' ', sizeof(toplbuf));
+	strncpy(toplbuf, bp, COLNO*2);
 }
 
 STATIC_OVL
@@ -313,10 +347,46 @@ char c;
 #endif
 }
 
+int moreset = 0;
+int hasMore() {
+	//FILE *f = fopen("log2.txt", "a");
+	//fprintf(f, "check hasmore, %d\n", moreset);
+	//fclose(f);
+	return moreset;
+}
+void resetMore() {
+	//FILE *f = fopen("log2.txt", "a");
+	//fprintf(f, "resetting hasmore\n");
+	//fclose(f);
+	moreset = 0;
+}
+
 void
 putsyms(str)
 const char *str;
 {
+	//FILE *f = fopen("log2.txt", "a");
+	//fprintf(f, "ps: %s\n", str);
+	if(strstr(str, "More") != NULL)
+	{
+		//fprintf(f, "-> more detected");
+		moreset = 1;
+	}
+	else moreset = 0;
+	//fclose(f);
+	
+	int i, j;
+	for (i=0; i < COLNO*2; i ++)
+	{
+		if (toplbuf[i] == '\0')
+			break;
+	}
+	for (j=0; j < strlen(str); j++)
+	{
+		if (i+j < COLNO*2)
+			toplbuf[i+j] = str[j];
+	}
+
     while (*str)
         topl_putsym(*str++);
 }

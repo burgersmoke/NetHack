@@ -1211,7 +1211,7 @@ mswin_update_inventory()
     logDebug("mswin_update_inventory()\n");
     if (flags.perm_invent && program_state.something_worth_saving
         && iflags.window_inited && WIN_INVEN != WIN_ERR)
-        display_inventory(NULL, FALSE);
+        display_inventory(NULL, FALSE, NULL);
 }
 
 /*
