@@ -219,6 +219,7 @@ more()
     ttyDisplay->inmore = 0;
 }
 
+int sizeof_toplbuf = COLNO*2;
 char toplbuf[COLNO*2];
 char* get_topl()
 {
@@ -230,7 +231,7 @@ char* get_topl()
 
 void clear_topl()
 {
-	memset(&toplbuf[0], ' ', sizeof(toplbuf));
+	memset(&toplbuf[0], ' ', sizeof_toplbuf);
 	*toplines = '\0';
 	*toplbuf = '\0';
 }
@@ -244,7 +245,7 @@ register const char *bp;
     int notdied = 1;
     struct WinDesc *cw = wins[WIN_MESSAGE];
 
-	memset(&toplbuf[0], ' ', sizeof(toplbuf));
+	memset(&toplbuf[0], ' ', sizeof_toplbuf);
     /* If there is room on the line, print message on same line */
     /* But messages like "You die..." deserve their own line */
     n0 = strlen(bp);
@@ -300,8 +301,9 @@ register const char *bp;
         redotoplin(toplines);
 	
 //	toplbuf = realloc(toplbuf, sizeof(toplines));
-	memset(&toplbuf[0], ' ', sizeof(toplbuf));
-	strncpy(toplbuf, bp, COLNO*2);
+	memset(&toplbuf[0], ' ', sizeof_toplbuf);
+	toplbuf[0] = '\n';
+	strncpy(toplbuf, bp, sizeof_toplbuf);
 }
 
 STATIC_OVL
@@ -383,7 +385,7 @@ const char *str;
 	}
 	for (j=0; j < strlen(str); j++)
 	{
-		if (i+j < COLNO*2)
+		if (i+j < sizeof_toplbuf)
 			toplbuf[i+j] = str[j];
 	}
 

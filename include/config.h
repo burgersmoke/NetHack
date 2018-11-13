@@ -317,7 +317,7 @@
  * otherwise it will be the current directory.
  */
 #ifndef HACKDIR
-#define HACKDIR "/Users/jcampbell/Projects/Research/nethackrl/nethack-3.6.0/game"
+#define HACKDIR "/Users/jcampbell/Projects/Research/gym_nethack/nethack/game"
 #endif
 
 /*

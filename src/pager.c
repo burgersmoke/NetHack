@@ -986,6 +986,7 @@ boolean do_mons; /* True => monsters, False => objects */
     winid win;
     int x, y, lo_x, lo_y, hi_x, hi_y, glyph, count = 0;
     char buf[BUFSZ], outbuf[BUFSZ], coordbuf[12], fmt[12]; /* "%02d,%02d" */
+	outbuf[0] = '\0';
 
     /* row,column orientation rather than cartesian x,y */
     Sprintf(fmt, "%%%sd,%%%sd",
@@ -1004,8 +1005,10 @@ boolean do_mons; /* True => monsters, False => objects */
 				break;
             buf[0] = '\0';
             glyph = glyph_at(x, y);
-            if (do_mons) {
-                if (glyph_is_monster(glyph)) {
+            if (do_mons)
+			{
+                if (glyph_is_monster(glyph))
+				{
                     struct monst *mtmp;
 
                     bhitpos.x = x; /* [is this actually necessary?] */
@@ -1017,17 +1020,21 @@ boolean do_mons; /* True => monsters, False => objects */
                         look_at_monster(buf, (char *) 0, mtmp, x, y);
                         ++count;
                     }
-                } else if (glyph_is_invisible(glyph)) {
+                }
+				else if (glyph_is_invisible(glyph))
+				{
                     /* remembered, unseen, creature */
                     Strcpy(buf, invisexplain);
                     ++count;
-                } else if (glyph_is_warning(glyph)) {
+                } else if (glyph_is_warning(glyph))
+				{
                     int warnindx = glyph_to_warning(glyph);
 
                     Strcpy(buf, def_warnsyms[warnindx].explanation);
                     ++count;
                 }
-            } else { /* !do_mons */
+            }
+			else { /* !do_mons */
                 if (glyph_is_object(glyph)) {
                     look_at_object(buf, x, y, glyph);
                     ++count;
@@ -1052,7 +1059,7 @@ boolean do_mons; /* True => monsters, False => objects */
                 /* prefix: "C  row,column  " */
                 //Sprintf(outbuf, "%s  %s  ", encglyph(glyph), coordbuf);
                 /* guard against potential overflow */
-                buf[sizeof buf - 1 - strlen(outbuf)] = '\0';
+                //buf[sizeof buf - 1 - strlen(outbuf)] = '\0';
                 Strcat(outbuf, buf);
 				Strcat(outbuf, ", ");
                 //putmixed(win, 0, outbuf);

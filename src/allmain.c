@@ -703,6 +703,8 @@ boolean resuming;
 			{
 				map[(ROWNO*COLNO)+i+j+2+k] = topline[k];
 			}
+			free(topline);
+			
 			k ++;
 			clear_topl();
 

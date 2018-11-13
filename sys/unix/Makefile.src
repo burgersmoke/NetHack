@@ -293,7 +293,7 @@ WINBELIB = -lbe
 # If ZLIB_COMP is defined in config.h this is necessary to link with zlib.
 # LIBS = -lz
 #
-LIBS =
+LIBS = -lzmq
 
 # make NetHack
 GAME     = nethack

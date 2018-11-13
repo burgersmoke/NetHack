@@ -88,6 +88,7 @@ QUEST_LEVS = ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev
 DATNODLB = $(VARDATND) license
 DATDLB = $(DATHELP) dungeon tribute $(SPEC_LEVS) $(QUEST_LEVS) $(VARDATD)
 DAT = $(DATNODLB) $(DATDLB)
+GDAT = dungeon quest.dat bigrm-5.lev
 
 $(GAME):
 	( cd src ; $(MAKE) )
@@ -234,6 +235,7 @@ dofiles-dlb: check-dlb
 dofiles-nodlb:
 # copy over the game files
 	( cd dat ; cp $(DAT) $(INSTDIR) )
+	( cd dat ; cp $(GDAT) $(HACKDIR) )
 # set up their permissions
 	-( cd $(INSTDIR) ; $(CHOWN) $(GAMEUID) $(DAT) ; \
 			$(CHGRP) $(GAMEGRP) $(DAT) ; \
